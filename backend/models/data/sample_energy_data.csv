@@ -1,0 +1,11 @@
+timestamp,power_consumption_W,usage_duration_minutes,appliance,occupancy_status,temperature_setting_C
+2026-03-20 08:00:00,1500,60,AC,Occupied,24
+2026-03-20 09:00:00,70,120,Fan,Occupied,24
+2026-03-20 12:00:00,200,180,Fridge,Occupied,22
+2026-03-20 18:00:00,500,45,Washing Machine,Occupied,25
+2026-03-20 19:30:00,1500,90,AC,Occupied,24
+2026-03-20 20:00:00,40,240,Light,Occupied,24
+2026-03-20 21:00:00,70,180,Fan,Occupied,24
+2026-03-21 08:00:00,1500,60,AC,Occupied,24
+2026-03-21 19:00:00,1500,120,AC,Occupied,24
+2026-03-21 20:30:00,40,180,Light,Occupied,24

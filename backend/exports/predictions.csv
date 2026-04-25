@@ -1,0 +1,40 @@
+Prediction ID,User ID,User Name,Mode Used,Energy (kWh),Cost (Rs),Carbon (kg CO2),Peak Hour,Waste Detected,Efficiency Score,Created At
+1,1,Meet Patel,instant,1.5,10.5,1.23,Yes (7-10 PM),No waste,0.0,2026-03-28 14:43:29
+2,1,Meet Patel,forecast,1.2,8.4,0.98,Yes (7-10 PM),No waste,0.0,2026-03-28 14:53:03
+3,1,Meet Patel,forecast,1.5,10.5,1.23,Yes (7-10 PM),No waste,0.0,2026-03-28 14:54:26
+4,2,Roshan Patil,forecast,1.07,0.35,0.04,Yes (7-10 PM),No waste,0.0,1,2026-03-28 16:42:43
+5,2,Roshan Patil,forecast,2.04,0.93,0.14,Yes (7-10 PM),No waste,0.0,1,2026-03-28 16:43:10
+6,2,Roshan Patil,forecast,2.04,14.3,1.68,Yes (7-10 PM),No waste,0.0,1,2026-03-28 16:45:51
+7,2,Roshan Patil,instant,2.04,14.3,1.68,Yes (7-10 PM),No waste,0.0,1,2026-03-28 16:46:36
+8,2,Roshan Patil,forecast,2.04,14.3,1.68,Yes (7-10 PM),No waste,0.0,1,2026-03-28 16:47:46
+9,2,Roshan Patil,forecast,2.04,14.3,1.68,Yes (7-10 PM),No waste,0.0,1,2026-03-28 16:50:27
+10,2,Roshan Patil,forecast,2.04,14.3,1.68,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:05:51
+11,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:06:24
+12,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:06:31
+13,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:06:37
+14,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:06:59
+15,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:13:17
+16,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:31:15
+17,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:31:19
+18,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:36:12
+19,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:36:28
+20,2,Roshan Patil,instant,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:36:34
+21,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:36:42
+22,2,Roshan Patil,forecast,1.07,7.46,0.87,Yes (7-10 PM),No waste,0.0,1,2026-03-28 17:52:59
+23,2,Roshan Patil,instant,7.46,52.22,6.12,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:00:20
+24,2,Roshan Patil,forecast,7.46,52.22,6.12,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:00:51
+25,2,Roshan Patil,forecast,31.98,223.8,26.22,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:00:58
+26,2,Roshan Patil,instant,31.98,223.8,26.22,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:01:04
+27,2,Roshan Patil,forecast,7.46,52.22,6.12,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:01:35
+28,2,Roshan Patil,forecast,389.09,2722.9,319.01,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:02:43
+29,2,Roshan Patil,forecast,1815.15,12705.65,1488.47,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:03:56
+30,2,Roshan Patil,instant,10.46,73.22,8.58,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:12:53
+31,2,Roshan Patil,forecast,44.82,313.8,36.75,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:13:00
+32,2,Roshan Patil,forecast,545.31,3817.9,447.13,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-28 18:13:06
+33,2,Roshan Patil,instant,10.46,73.22,8.58,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-29 02:34:27
+34,2,Roshan Patil,instant,10.5,73.5,8.61,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-29 03:12:08
+35,2,Roshan Patil,instant,10.5,73.5,8.61,Yes (7-10 PM),High consumption detected,0.0,1,2026-03-29 03:17:12
+36,Guest,Guest User,manual,4.26,29.13,3.17,Yes (7-10 PM),No waste,0.0,1,2026-03-29 16:59:06
+37,Guest,Guest User,manual,4.26,29.13,3.17,Yes (7-10 PM),No waste,0.0,1,2026-03-29 16:59:37
+38,4,Meet Patel,manual,1.48,9.96,1.12,Yes (7-10 PM),No waste,0.0,1,2026-03-29 17:53:16
+39,4,Meet Patel,manual,1.48,9.96,1.12,Yes (7-10 PM),No waste,0.0,1,2026-03-29 17:53:25

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="js/auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Smart Energy Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .logo-icon i { font-size: 22px; color: white; }
+        .logo-text h2 { font-size: 22px; font-weight: 700; margin: 0; background: linear-gradient(135deg, #2ecc71, #3498db); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-text p { font-size: 10px; margin: 0; color: #7f8c8d; }
+        .nav-links { display: flex; gap: 35px; list-style: none; margin: 0; padding: 0; }
+        .nav-links a { text-decoration: none; color: #2c3e50; font-weight: 500; transition: all 0.3s; position: relative; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: linear-gradient(135deg, #2ecc71, #3498db); transition: width 0.3s; }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a:hover { color: #2ecc71; }
+        .user-info {
+            display: flex; align-items: center; gap: 20px;
+            background: #f8f9fa; padding: 8px 20px; border-radius: 50px;
+        }
+        .user-avatar {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: white; font-weight: bold; font-size: 18px;
+        }
+        .user-name { font-weight: 600; color: #2c3e50; }
+        .logout-btn {
+            background: #e74c3c; color: white; border: none; padding: 8px 20px;
+            border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 500;
+        }
+        .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        .container { max-width: 1300px; margin: 100px auto 50px; padding: 20px; }
+        .welcome-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .welcome-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            padding: 8px 20px;
+            border-radius: 50px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        .welcome-section h1 { font-size: 42px; color: #2c3e50; margin-bottom: 15px; font-weight: 700; }
+        .welcome-section h1 span { background: linear-gradient(135deg, #2ecc71, #3498db); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .welcome-section p { font-size: 18px; color: #7f8c8d; margin-bottom: 0; }
+        .instruction-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 50px;
+            color: white;
+            text-align: center;
+        }
+        .instruction-box i { font-size: 28px; margin-right: 15px; vertical-align: middle; }
+        .instruction-box p { margin: 0; font-size: 16px; display: inline-block; vertical-align: middle; }
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .mode-card {
+            background: white;
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            transition: all 0.4s;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .mode-card:hover { transform: translateY(-15px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .mode-icon {
+            width: 100px; height: 100px;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            transition: all 0.3s;
+        }
+        .mode-card:hover .mode-icon { transform: scale(1.1); }
+        .mode-icon i { font-size: 48px; color: white; }
+        .mode-card h3 { font-size: 26px; color: #2c3e50; margin-bottom: 15px; font-weight: 700; }
+        .mode-card p { color: #7f8c8d; margin-bottom: 20px; line-height: 1.6; }
+        .mode-features { list-style: none; padding: 0; text-align: left; margin: 25px 0; }
+        .mode-features li { padding: 8px 0; color: #555; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        .mode-features li i { color: #2ecc71; font-size: 16px; }
+        .select-btn {
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .select-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(46,204,113,0.4); }
+        @media (max-width: 768px) {
+            .nav-container { flex-direction: column; gap: 15px; padding: 15px 20px; }
+            .nav-links { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            .container { margin-top: 160px; }
+            .welcome-section { padding: 30px; }
+            .welcome-section h1 { font-size: 28px; }
+            .mode-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="nav-container">
+        <a href="home.html" class="logo">
+            <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+            <div class="logo-text">
+                <h2>Smart Energy Monitor</h2>
+                <p>AI-Powered Energy Intelligence</p>
+            </div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="history.html">History</a></li>
+        </ul>
+        <div class="user-info" id="userInfo">
+            <div class="user-avatar" id="userAvatar"><span id="avatarInitial">JD</span></div>
+            <span class="user-name" id="userNameDisplay">Loading...</span>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="welcome-section">
+        <div class="welcome-badge"><i class="fas fa-check-circle"></i> Verified Account</div>
+        <h1>Welcome back, <span id="welcomeUserName">User</span>! 👋</h1>
+        <p>Ready to optimize your energy consumption and save money? Choose your preferred mode below.</p>
+    </div>
+    <div class="instruction-box">
+        <i class="fas fa-robot"></i>
+        <p><strong>How it works:</strong> Select a mode below to get started. Upload CSV for bulk analysis, enter data manually, or chat with our AI assistant for personalized insights.</p>
+    </div>
+    <div class="mode-grid">
+        <div class="mode-card" onclick="window.location.href='csv-upload.html'">
+            <div class="mode-icon"><i class="fas fa-file-csv"></i></div>
+            <h3>CSV Upload Mode</h3>
+            <p>Upload your energy consumption dataset for comprehensive analysis</p>
+            <ul class="mode-features">
+                <li><i class="fas fa-check-circle"></i> Bulk data processing</li>
+                <li><i class="fas fa-check-circle"></i> Full analytics & graphs</li>
+                <li><i class="fas fa-check-circle"></i> Waste detection</li>
+                <li><i class="fas fa-check-circle"></i> Detailed reports</li>
+            </ul>
+            <button class="select-btn">Upload CSV →</button>
+        </div>
+        <div class="mode-card" onclick="window.location.href='manual-input.html'">
+            <div class="mode-icon"><i class="fas fa-sliders-h"></i></div>
+            <h3>Manual Input Mode</h3>
+            <p>Enter appliance details manually for instant or forecast predictions</p>
+            <ul class="mode-features">
+                <li><i class="fas fa-check-circle"></i> Multiple appliances</li>
+                <li><i class="fas fa-check-circle"></i> Instant prediction</li>
+                <li><i class="fas fa-check-circle"></i> Future forecast (7d/30d/1y)</li>
+                <li><i class="fas fa-check-circle"></i> Cost & carbon calculation</li>
+            </ul>
+            <button class="select-btn">Enter Data →</button>
+        </div>
+        <div class="mode-card" onclick="window.location.href='ai-assistant.html'">
+            <div class="mode-icon"><i class="fas fa-robot"></i></div>
+            <h3>AI Assistant Mode</h3>
+            <p>Chat with our intelligent assistant for personalized energy insights</p>
+            <ul class="mode-features">
+                <li><i class="fas fa-check-circle"></i> Conversational interface</li>
+                <li><i class="fas fa-check-circle"></i> Smart recommendations</li>
+                <li><i class="fas fa-check-circle"></i> Personalized tips</li>
+                <li><i class="fas fa-check-circle"></i> Real-time assistance</li>
+            </ul>
+            <button class="select-btn">Start Chat →</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+  function updateUserUI() {
+    const user = authManager.getCurrentUser();
+
+    console.log("User data:", user); // ✅ DEBUG
+
+    if (!user) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const name = user.name;
+
+    document.getElementById('userNameDisplay').textContent = name;
+    document.getElementById('welcomeUserName').textContent = name;
+
+    const words = name.trim().split(' ');
+    let initials = '';
+
+    if (words.length === 1) {
+        initials = words[0].substring(0, 2);
+    } else {
+        initials = words[0][0] + words[words.length - 1][0];
+    }
+
+    document.getElementById('avatarInitial').textContent = initials.toUpperCase();
+} 
+    function logout() {
+        if (confirm('Logout?')) { localStorage.clear(); sessionStorage.clear(); window.location.href = 'login.html'; }
+    }
+    
+    function checkAuth() {
+        if (!getUser()) window.location.href = 'login.html';
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+    updateUserUI();
+});
+</script>
+</body>
+</html>

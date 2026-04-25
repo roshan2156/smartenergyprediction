@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Smart Energy Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .logo-icon i { font-size: 22px; color: white; }
+        .logo-text h2 {
+            font-size: 22px; font-weight: 700; margin: 0;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-text p { font-size: 10px; margin: 0; color: #7f8c8d; }
+        .nav-links { display: flex; gap: 35px; list-style: none; margin: 0; padding: 0; }
+        .nav-links a {
+            text-decoration: none; color: #2c3e50; font-weight: 500;
+            transition: all 0.3s; position: relative;
+        }
+        .nav-links a::after {
+            content: ''; position: absolute; bottom: -5px; left: 0;
+            width: 0; height: 2px; background: linear-gradient(135deg, #2ecc71, #3498db);
+            transition: width 0.3s;
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a:hover { color: #2ecc71; }
+        .user-info {
+            display: flex; align-items: center; gap: 20px;
+            background: #f8f9fa; padding: 8px 20px; border-radius: 50px;
+        }
+        .user-avatar {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: white; font-weight: bold; font-size: 18px;
+        }
+        .user-name { font-weight: 600; color: #2c3e50; }
+        .logout-btn {
+            background: #e74c3c; color: white; border: none; padding: 8px 20px;
+            border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 500;
+        }
+        .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        .container { max-width: 1400px; margin: 100px auto 50px; padding: 20px; }
+        .chat-container {
+            background: white; border-radius: 25px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); height: 65vh;
+            display: flex; flex-direction: column;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            color: white; padding: 20px 25px; display: flex; align-items: center; gap: 15px;
+        }
+        .chat-header i { font-size: 32px; }
+        .chat-header h3 { margin: 0; font-size: 20px; }
+        .chat-header p { margin: 0; font-size: 12px; opacity: 0.9; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 25px; background: #f8f9fa; }
+        .message { margin-bottom: 20px; display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.ai { justify-content: flex-start; }
+        .message.user { justify-content: flex-end; }
+        .message-content { max-width: 75%; padding: 12px 18px; border-radius: 20px; word-wrap: break-word; line-height: 1.5; }
+        .message.ai .message-content { background: white; color: #2c3e50; border-bottom-left-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .message.user .message-content { background: linear-gradient(135deg, #2ecc71, #3498db); color: white; border-bottom-right-radius: 5px; }
+        .message-avatar { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
+        .message.ai .message-avatar { background: linear-gradient(135deg, #2ecc71, #3498db); color: white; }
+        .message.user .message-avatar { background: #95a5a6; color: white; margin-left: 12px; margin-right: 0; }
+        .typing-indicator { display: none; align-items: center; gap: 5px; padding: 12px 18px; background: white; border-radius: 20px; width: fit-content; }
+        .typing-indicator span { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; animation: typing 1.4s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+        .chat-input-area { padding: 20px; background: white; border-top: 1px solid #e9ecef; display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; padding: 12px 18px; border: 2px solid #e9ecef; border-radius: 25px; outline: none; transition: all 0.3s; }
+        .chat-input-area input:focus { border-color: #2ecc71; }
+        .chat-input-area button { background: linear-gradient(135deg, #2ecc71, #3498db); color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; transition: all 0.3s; }
+        .chat-input-area button:hover { transform: scale(1.05); }
+        .result-section { background: white; border-radius: 25px; padding: 30px; margin-top: 20px; display: none; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .result-card { background: linear-gradient(135deg, #2ecc71, #3498db); color: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; }
+        .stat-value { font-size: 32px; font-weight: 700; }
+        .alert-card { border-left: 4px solid; padding: 15px; margin-bottom: 15px; border-radius: 10px; background: #f8f9fa; }
+        .alert-warning { border-left-color: #f39c12; }
+        .alert-danger { border-left-color: #e74c3c; }
+        .alert-success { border-left-color: #2ecc71; }
+        .alert-info { border-left-color: #3498db; }
+        .rec-card { background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #2ecc71; }
+        .suggestion-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .suggestion-btn { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.3s; }
+        .suggestion-btn:hover { background: #2ecc71; color: white; }
+        @media (max-width: 768px) {
+            .nav-container { flex-direction: column; gap: 15px; padding: 15px 20px; }
+            .nav-links { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            .container { margin-top: 160px; }
+            .message-content { max-width: 85%; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="nav-container">
+        <a href="home.html" class="logo">
+            <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+            <div class="logo-text">
+                <h2>Smart Energy Monitor</h2>
+                <p>AI-Powered Energy Intelligence</p>
+            </div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="history.html">History</a></li>
+        </ul>
+        <div class="user-info" id="userInfo">
+            <div class="user-avatar" id="userAvatar"><span id="avatarInitial"></span></div>
+            <span class="user-name" id="userNameDisplay"></span>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="chat-container">
+        <div class="chat-header">
+            <i class="fas fa-robot"></i>
+            <div>
+                <h3>AI Energy Assistant</h3>
+                <p>Ask me anything about energy savings, recommendations, or alerts!</p>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai">
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div class="message-content">
+                    👋 Hi! I'm your AI Energy Assistant. I can help you with:<br><br>
+                    • 💡 Energy saving recommendations<br>
+                    • ⚠️ Custom alerts based on your usage<br>
+                    • 💰 Cost saving calculations<br>
+                    • 📊 Personalized energy analysis<br><br>
+                    <strong>Try asking:</strong> "How can I save money on my AC?" or "Give me energy saving tips"
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+    </div>
+    <div id="resultSection" class="result-section"></div>
+</div>
+<script src="js/auth.js"></script>
+<script>
+    const API_URL = 'http://localhost:5000/api';
+    let conversationState = {
+        step: 'greeting', waitingForCorrection: false, lastQuestion: null,
+        collectedData: { appliances: [], occupancy: null, usageHours: null, acTemp: null, rooms: [], hasAC: false, hasHeater: false, hasWashingMachine: false, hasFridge: false }
+    };
+    let waitingForResponse = false;
+    let lastGeneratedData = null;
+
+    const applianceKeywords = {
+        'ac': ['ac', 'a/c', 'air conditioner', 'aircon', 'cooler', 'a c'],
+        'fan': ['fan', 'fans', 'ceiling fan', 'table fan'],
+        'light': ['light', 'lights', 'bulb', 'bulbs', 'lamp', 'lamps', 'lighting'],
+        'fridge': ['fridge', 'refrigerator', 'freezer', 'refrigirator'],
+        'washing machine': ['washing machine', 'washer', 'washing', 'wm', 'laundry machine'],
+        'tv': ['tv', 'television', 't.v', 'tv set'],
+        'heater': ['heater', 'heaters', 'room heater', 'geyser', 'water heater']
+    };
+    const occupancyKeywords = { 'occupied': ['occupied', 'occupied most', 'always home', 'present', 'full time'], 'vacant': ['vacant', 'work hours', 'office hours', 'empty', 'away'], 'mixed': ['mixed', 'sometimes', 'partial', 'varies'] };
+    const roomKeywords = { 'living': ['living', 'living room', 'lounge', 'hall'], 'bedroom': ['bedroom', 'bed room', 'master bedroom', 'bed'], 'kitchen': ['kitchen', 'kitchen room'], 'hall': ['hall', 'hall room', 'dining hall'] };
+
+    function getUser() { return authManager.getCurrentUser(); }
+
+    function updateUserUI() {
+        const user = getUser();
+        if (!user) { document.getElementById('userNameDisplay').textContent = 'Guest User'; document.getElementById('avatarInitial').textContent = 'GU'; return; }
+        document.getElementById('userNameDisplay').textContent = user.name;
+        const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('avatarInitial').textContent = initials;
+    }
+
+    function logout() { if (confirm('Are you sure you want to logout?')) { authManager.logout(); } }
+
+    async function callMLPrediction(data) {
+        try {
+            const response = await fetch(`${API_URL}/predict`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            return await response.json();
+        } catch (error) { console.error('API Error:', error); return null; }
+    }
+
+    function fuzzyMatch(input, keywords) { input = input.toLowerCase(); for (let [key, patterns] of Object.entries(keywords)) { for (let pattern of patterns) { if (input.includes(pattern)) return key; } } return null; }
+    function extractNumber(input) { const numbers = input.match(/\d+/g); return numbers && numbers.length > 0 ? parseInt(numbers[0]) : null; }
+    function getSuggestions() { return { 'ask_appliances': ['AC and Fan', 'Fridge and Washing Machine', 'AC, Fan, Light'], 'ask_occupancy': ['Occupied most of the day', 'Vacant during work hours', 'Mixed'], 'ask_usage_hours': ['4 hours', '6 hours', '8 hours'], 'ask_temperature': ['24°C', '22°C', '26°C'], 'ask_rooms': ['Living Room and Bedroom', 'Kitchen and Hall', 'All rooms'] }[conversationState.step] || []; }
+    function addSuggestionButtons() { const suggestions = getSuggestions(); if (!suggestions.length) return; const lastMsg = document.querySelector('.message.ai:last-child .message-content'); if (lastMsg && !lastMsg.querySelector('.suggestion-buttons')) { const container = document.createElement('div'); container.className = 'suggestion-buttons'; suggestions.forEach(s => { const btn = document.createElement('button'); btn.className = 'suggestion-btn'; btn.textContent = s; btn.onclick = () => { document.getElementById('chatInput').value = s; sendMessage(); }; container.appendChild(btn); }); lastMsg.appendChild(container); } }
+
+    function addMessage(sender, text, showSuggestions = false) {
+        const div = document.createElement('div'); div.className = `message ${sender}`;
+        if (sender === 'ai') div.innerHTML = `<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content">${text.replace(/\n/g, '<br>')}</div>`;
+        else div.innerHTML = `<div class="message-content">${text}</div><div class="message-avatar"><i class="fas fa-user"></i></div>`;
+        document.getElementById('chatMessages').appendChild(div);
+        div.scrollIntoView({ behavior: 'smooth' });
+        if (showSuggestions && sender === 'ai') setTimeout(() => addSuggestionButtons(), 100);
+    }
+    
+    function showTyping() { const div = document.createElement('div'); div.className = 'message ai'; div.id = 'typingIndicator'; div.innerHTML = `<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="typing-indicator"><span></span><span></span><span></span></div>`; document.getElementById('chatMessages').appendChild(div); setTimeout(() => { const ind = document.getElementById('typingIndicator'); if (ind) ind.querySelector('.typing-indicator').style.display = 'flex'; }, 10); }
+    function hideTyping() { const ind = document.getElementById('typingIndicator'); if (ind) ind.remove(); }
+
+    async function sendMessage() {
+        if (waitingForResponse) return;
+        const input = document.getElementById('chatInput'); const msg = input.value.trim();
+        if (!msg) return;
+        addMessage('user', msg); input.value = ''; waitingForResponse = true;
+        showTyping();
+        setTimeout(async () => { hideTyping(); await processUserResponse(msg); waitingForResponse = false; }, 800);
+    }
+
+    async function processUserResponse(response) {
+        if (conversationState.waitingForCorrection) { conversationState.waitingForCorrection = false; processCurrentStep(response); return; }
+        await processCurrentStep(response);
+    }
+
+    async function processCurrentStep(response) {
+        const lower = response.toLowerCase();
+        switch(conversationState.step) {
+            case 'greeting':
+                addMessage('ai', "Great! Let me ask you a few questions.\n\n🏠 What appliances do you commonly use? (AC, Fan, Light, Fridge, Washing Machine, TV, Heater)", true);
+                conversationState.step = 'ask_appliances'; 
+                break;
+            case 'ask_appliances':
+                const detected = []; for (let [app, keys] of Object.entries(applianceKeywords)) { for (let k of keys) { if (lower.includes(k)) { detected.push(app); break; } } }
+                if (!detected.length) { addMessage('ai', "❓ I didn't catch that. Please tell me which appliances you use.\n\nCommon: AC, Fan, Light, Fridge, Washing Machine, TV, Heater", true); conversationState.waitingForCorrection = true; }
+                else {
+                    conversationState.collectedData.appliances = detected;
+                    conversationState.collectedData.hasAC = detected.includes('ac');
+                    conversationState.collectedData.hasHeater = detected.includes('heater');
+                    conversationState.collectedData.hasWashingMachine = detected.includes('washing machine');
+                    conversationState.collectedData.hasFridge = detected.includes('fridge');
+                    addMessage('ai', `✅ Got it! You use: ${detected.map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(', ')}.\n\n👥 What's your occupancy status?\n• Occupied most of the day\n• Vacant during work hours\n• Mixed`, true);
+                    conversationState.step = 'ask_occupancy';
+                } 
+                break;
+            case 'ask_occupancy':
+                let occ = fuzzyMatch(lower, occupancyKeywords);
+                if (!occ) { addMessage('ai', "❓ Please tell me: Occupied, Vacant during work hours, or Mixed", true); conversationState.waitingForCorrection = true; }
+                else {
+                    conversationState.collectedData.occupancy = occ === 'occupied' ? 'Occupied most of the day' : occ === 'vacant' ? 'Vacant during work hours' : 'Mixed';
+                    addMessage('ai', `📊 Understood. ${conversationState.collectedData.occupancy}.\n\n⏰ How many hours/day do you use high-power appliances (AC, Heater, Washing Machine)?`, true);
+                    conversationState.step = 'ask_usage_hours';
+                } 
+                break;
+            case 'ask_usage_hours':
+                let hrs = extractNumber(lower);
+                if (!hrs || hrs < 1 || hrs > 24) { addMessage('ai', "❓ Please enter a valid number between 1-24 hours.", true); conversationState.waitingForCorrection = true; }
+                else {
+                    conversationState.collectedData.usageHours = hrs;
+                    addMessage('ai', `⏱️ ${hrs} hours recorded.\n\n🌡️ What temperature do you set your AC/Heater to? (°C)`, true);
+                    conversationState.step = 'ask_temperature';
+                } 
+                break;
+            case 'ask_temperature':
+                let tmp = extractNumber(lower);
+                if (!tmp || tmp < 16 || tmp > 35) { addMessage('ai', "❓ Please enter a valid temperature between 16-35°C.", true); conversationState.waitingForCorrection = true; }
+                else {
+                    conversationState.collectedData.acTemp = tmp;
+                    addMessage('ai', `🌡️ Temperature set to ${tmp}°C.\n\n🚪 Which rooms do you use most? (Living Room, Bedroom, Kitchen, Hall)`, true);
+                    conversationState.step = 'ask_rooms';
+                } 
+                break;
+            case 'ask_rooms':
+                const rooms = []; for (let [rm, keys] of Object.entries(roomKeywords)) { for (let k of keys) { if (lower.includes(k)) { rooms.push(rm.charAt(0).toUpperCase() + rm.slice(1)); break; } } }
+                if (!rooms.length) { addMessage('ai', "❓ Please tell me which rooms you use.", true); conversationState.waitingForCorrection = true; }
+                else {
+                    conversationState.collectedData.rooms = rooms;
+                    addMessage('ai', `✅ Perfect! You use ${rooms.join(', ')}.\n\n📊 Analyzing your energy consumption with ML model...`);
+                    setTimeout(() => generatePrediction(), 1500);
+                } 
+                break;
+            default: handleGeneralQuery(response);
+        }
+    }
+
+    async function generatePrediction() {
+        const data = conversationState.collectedData;
+        const inputData = {
+            power_consumption_W: data.hasAC ? 1500 : data.hasWashingMachine ? 500 : 200,
+            usage_duration_minutes: (data.usageHours || 4) * 60,
+            appliance: data.hasAC ? 'AC' : data.hasWashingMachine ? 'Washing Machine' : data.hasFridge ? 'Fridge' : 'Fan',
+            occupancy_status: data.occupancy || 'Occupied',
+            temperature_setting_C: data.acTemp || 24,
+            hour: new Date().getHours(),
+            voltage: 230,
+            current: (data.hasAC ? 1500 : 500) / 230,
+            day_of_week: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()],
+            season: getSeason(new Date().getMonth()),
+            holiday: 'No',
+            device_status: 'ON',
+            room_location: data.rooms[0] || 'Living Room',
+            appliance_category: data.hasAC ? 'High' : data.hasWashingMachine ? 'Medium' : 'Low'
+        };
+        
+        const result = await callMLPrediction(inputData);
+        let totalEnergy, totalCost, totalCarbon;
+        if (result && result.success) { totalEnergy = result.energy; totalCost = result.cost; totalCarbon = result.carbon; }
+        else {
+            totalEnergy = (data.hasAC ? 3.5 : data.hasWashingMachine ? 1.5 : 0.5) * ((data.usageHours || 4) / 4);
+            totalCost = totalEnergy * 7; totalCarbon = totalEnergy * 0.82;
+        }
+        
+        const isPeakHour = new Date().getHours() >= 18 && new Date().getHours() <= 22;
+        
+        const alerts = generateDynamicAlerts(totalEnergy, isPeakHour, data.acTemp, data.occupancy, data.appliances);
+        const recommendations = generateDynamicRecommendations(totalEnergy, isPeakHour, data.acTemp, data.occupancy, data.appliances);
+
+        lastGeneratedData = { totalEnergy, totalCost, totalCarbon, isPeakHour, data, alerts, recommendations };
+        
+        displayResult(totalEnergy, totalCost, totalCarbon, isPeakHour, data, alerts, recommendations);
+    }
+    
+    function generateDynamicAlerts(energy, isPeakHour, temp, occupancy, appliances) {
+        const alerts = [];
+        if (isPeakHour) alerts.push('Peak hour (6-10 PM) - Higher rates apply');
+        if (energy > 8) alerts.push('Very high energy consumption detected!');
+        return alerts;
+    }
+    
+    function generateDynamicRecommendations(energy, isPeakHour, temp, occupancy, appliances) {
+        const recs = [];
+        if (appliances.includes('ac')) recs.push('Set AC to 24°C to save energy');
+        recs.push('Unplug electronics when not in use');
+        return recs;
+    }
+
+    function getSeason(month) { if (month >= 2 && month <= 4) return 'Spring'; if (month >= 5 && month <= 7) return 'Summer'; if (month >= 8 && month <= 10) return 'Autumn'; return 'Winter'; }
+
+    function displayResult(energy, cost, carbon, isPeakHour, data, alerts, recommendations) {
+        const resultHtml = `<h3 style="font-size:24px;font-weight:700;margin-bottom:25px;border-bottom:3px solid #2ecc71;"><i class="fas fa-robot me-2"></i>AI Personalized Report</h3>
+        <div class="result-card"><div class="row text-center"><div class="col-md-4"><i class="fas fa-bolt fa-3x"></i><div class="stat-value mt-2">${energy.toFixed(2)} kWh</div><small>Daily Energy</small></div><div class="col-md-4"><i class="fas fa-rupee-sign fa-3x"></i><div class="stat-value mt-2">₹${cost.toFixed(2)}</div><small>Daily Cost</small></div><div class="col-md-4"><i class="fas fa-leaf fa-3x"></i><div class="stat-value mt-2">${carbon.toFixed(2)} kg</div><small>Carbon</small></div></div></div>
+        <div class="mt-4"><h5><i class="fas fa-chart-line text-info"></i> AI Insights</h5><div class="rec-card"><i class="fas fa-brain text-info me-2"></i>Based on your usage of ${data.appliances.length} appliances, estimated daily consumption is ${energy.toFixed(1)} kWh.</div></div>
+        <div class="mt-4"><h5><i class="fas fa-bell text-warning"></i> Alerts</h5><div class="alert-card ${isPeakHour ? 'alert-warning' : 'alert-success'}"><i class="fas fa-${isPeakHour ? 'exclamation-triangle' : 'check-circle'} me-2"></i>${isPeakHour ? '⚠️ Peak hour (6-10 PM) - Higher rates apply' : '✅ Off-peak hour - Optimal rates'}</div></div>
+        <div class="mt-4"><h5><i class="fas fa-lightbulb text-success"></i> Recommendations</h5><div class="rec-card"><i class="fas fa-check-circle text-success me-2"></i>🔌 Unplug electronics when not in use.</div></div>
+        <div class="mt-4"><h5><i class="fas fa-chart-pie text-primary"></i> Your Profile</h5><div class="row"><div class="col-6"><div class="alert-card alert-info"><strong>🏠 Appliances:</strong> ${data.appliances.map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(', ')}</div></div><div class="col-6"><div class="alert-card alert-info"><strong>👥 Occupancy:</strong> ${data.occupancy}</div></div></div></div>
+        <div class="mt-4 text-center">
+            <button class="btn btn-success" onclick="downloadAIReport()"><i class="fas fa-download"></i> Download Report</button>
+            <button class="btn btn-primary ms-2" onclick="saveAIReport()"><i class="fas fa-save"></i> Save to History</button>
+            <button class="btn btn-secondary ms-2" onclick="startNew()"><i class="fas fa-refresh"></i> New Analysis</button>
+        </div>`;
+        document.getElementById('resultSection').innerHTML = resultHtml;
+        document.getElementById('resultSection').style.display = 'block';
+        addMessage('ai', "🎉 Analysis complete! I've generated your personalized report above.");
+    }
+    
+    function downloadAIReport() {
+        if (!lastGeneratedData) { alert("No data available"); return; }
+        const d = lastGeneratedData;
+        const user = getUser();
+        const userName = user ? user.name : 'Guest User';
+        const report = `SMART ENERGY MONITOR - AI REPORT\nDate: ${new Date().toLocaleString()}\nUser: ${userName}\n\nEnergy: ${d.totalEnergy.toFixed(2)} kWh\nCost: ₹${d.totalCost.toFixed(2)}\nCarbon: ${d.totalCarbon.toFixed(2)} kg CO₂\n\nAlerts:\n${d.alerts.map(a => '- ' + a).join('\n')}\n\nRecommendations:\n${d.recommendations.map(r => '- ' + r).join('\n')}`;
+        const blob = new Blob([report], { type: 'text/plain' });
+        const link = document.createElement('a'); 
+        link.href = URL.createObjectURL(blob); 
+        link.download = `ai_report_${new Date().toISOString().slice(0,19)}.txt`; 
+        link.click();
+    }
+
+    function saveAIReport() {
+        if (!lastGeneratedData) { alert("No data available"); return; }
+        const d = lastGeneratedData;
+
+        const user = authManager.getCurrentUser();
+        const userId = user ? (user.id || user.name) : 'guest';
+
+        const defaultPower = { 'ac': 1500, 'fan': 70, 'light': 40, 'fridge': 200, 'washing machine': 500, 'tv': 100, 'heater': 2000 };
+        const usageHours = d.data.usageHours || 4;
+        const breakdownLabels = [];
+        const breakdownValues = [];
+        d.data.appliances.forEach(app => {
+            const power = defaultPower[app] || 100;
+            const energy = (power * usageHours) / 1000;
+            breakdownLabels.push(app.charAt(0).toUpperCase() + app.slice(1));
+            breakdownValues.push(parseFloat(energy.toFixed(2)));
+        });
+
+        let reports = JSON.parse(localStorage.getItem(`aiReports_${userId}`) || '[]');
+
+        const report = {
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            mode: 'ai',
+            totalEnergy: parseFloat(d.totalEnergy.toFixed(2)),
+            totalCost: parseFloat(d.totalCost.toFixed(2)),
+            totalCarbon: parseFloat(d.totalCarbon.toFixed(2)),
+            efficiencyScore: 80,
+            alerts: d.alerts,
+            recommendations: d.recommendations,
+            chartData: {
+                type: 'ai',
+                applianceBreakdown: {
+                    labels: breakdownLabels,
+                    values: breakdownValues
+                }
+            }
+        };
+
+        reports.push(report);
+        localStorage.setItem(`aiReports_${userId}`, JSON.stringify(reports));
+
+        // ✅ STEP: Save unified latestPrediction for dashboard
+        localStorage.setItem('latestPrediction', JSON.stringify({
+            mode: 'ai',
+            totalEnergy: parseFloat(d.totalEnergy.toFixed(2)),
+            totalCost: parseFloat(d.totalCost.toFixed(2)),
+            totalCarbon: parseFloat(d.totalCarbon.toFixed(2)),
+            efficiencyScore: 80,
+            alerts: d.alerts,
+            recommendations: d.recommendations,
+            timestamp: new Date().toISOString()
+        }));
+
+        alert('✅ AI Report saved to Reports page!');
+    }
+    
+    function startNew() {
+        conversationState = { step: 'greeting', waitingForCorrection: false, lastQuestion: null, collectedData: { appliances: [], occupancy: null, usageHours: null, acTemp: null, rooms: [], hasAC: false, hasHeater: false, hasWashingMachine: false, hasFridge: false } };
+        lastGeneratedData = null;
+        document.getElementById('resultSection').style.display = 'none';
+        document.getElementById('chatMessages').innerHTML = `<div class="message ai"><div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content">👋 Hi! Let's analyze your energy consumption again.\n\n🏠 What appliances do you commonly use?</div></div>`;
+    }
+    
+    function handleGeneralQuery(msg) { addMessage('ai', "I can help with energy recommendations, alerts, or cost savings. What would you like to know?"); }
+    function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+
+    document.addEventListener('DOMContentLoaded', function () { updateUserUI(); });
+</script>
+</body>
+</html>

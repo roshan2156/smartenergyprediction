@@ -1,31 +1,25 @@
-from predict import SmartEnergyPredictor
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import os
-import csv
 import bcrypt
 import json
 from datetime import datetime
 import traceback
-from models.lstm_predict import LSTMPredictor
-import numpy as np 
 
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
 
 # ==================== DATABASE FIX ====================
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+# ✅ USE YOUR PUBLIC RAILWAY URL HERE (NOT internal!)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:ooLBypHDuxgxiRggXpupCdLMxKALCyEq@mainline.proxy.rlwy.net:25123/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-print("📡 DATABASE URL:", os.getenv("DATABASE_URL"))
 
 db = SQLAlchemy(app)
 
-# ==================== INIT ====================
-predictor = SmartEnergyPredictor()
-lstm = LSTMPredictor()
+# ✅ REMOVED: from predict import... (Not needed anymore)
+# ✅ REMOVED: import numpy as np (Not needed anymore)
 
 EXPORTS_FOLDER = 'exports'
 os.makedirs(EXPORTS_FOLDER, exist_ok=True)
@@ -56,8 +50,6 @@ class Prediction(db.Model):
     tips = db.Column(db.Text)
     appliance_count = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-# ❌ REMOVED db.create_all()
 
 # ==================== HELPERS ====================
 def check_peak_hour(hour):
@@ -191,7 +183,6 @@ def batch_predict():
 def history():
     try:
         user_id = int(request.args.get('user_id'))
-
         predictions = Prediction.query.filter_by(user_id=user_id).all()
 
         return jsonify({
@@ -222,4 +213,6 @@ def index():
 def serve_static(filename):
     return send_from_directory(app.static_folder, filename)
 
-# ❌ NO app.run() (IMPORTANT for Render)
+# ✅ REQUIRED FOR GLITCH
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

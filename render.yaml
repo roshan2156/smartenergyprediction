@@ -1,16 +1,12 @@
 services:
   - type: web
     name: smart-energy-monitor
-
-    env: python   # ✅ use this instead
-
+    env: python
     buildCommand: cd backend && pip install -r requirements.txt
     startCommand: cd backend && gunicorn app:app
-
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.13   # ✅ exact version
-
+        value: 3.10.12
       - key: DATABASE_URL
         fromDatabase:
           name: smart-energy-db

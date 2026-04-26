@@ -10,50 +10,15 @@
     
 <script src="js/auth.js"></script>
 <script>
-   
     let globalRecords = [];
-
     let applianceCount = 1, currentPredictionType = 'instant', currentPeriod = 7;
 
-    function getUser() {
-    return authManager.getCurrentUser();
-}
-    
-   function updateUserUI() {
-    const user = authManager.getCurrentUser();
-
-    if (!user) return;
-
-    const name = user.name;
-
-    document.getElementById('userNameDisplay').textContent = name;
-
-    const words = name.trim().split(' ');
-
-    let initials = '';
-
-    if (words.length === 1) {
-        initials = words[0].substring(0, 2);
-    } else {
-        initials = words[0][0] + words[words.length - 1][0];
-    }
-
-    document.getElementById('avatarInitial').textContent = initials.toUpperCase();
-} 
-   function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        authManager.logout();
-    }
-}
-    
-    function selectPredictionType(type) {
-        currentPredictionType = type;
-        document.querySelectorAll('.pred-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.pred-btn[data-type="${type}"]`).classList.add('active');
-        document.getElementById('forecastOptions').style.display = type === 'forecast' ? 'block' : 'none';
-    }
+    // ✅ FIX 1: DYNAMIC API URL (Fixes Render "Failed to fetch" error)
+    // If on localhost, it uses localhost. If on Render/Railway, it uses the live URL automatically!
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000/api' 
+        : '/api';
 </script>
-
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -195,8 +160,8 @@
             <li><a href="history.html">History</a></li>
         </ul>
         <div class="user-info" id="userInfo">
-            <div class="user-avatar" id="userAvatar"><span id="avatarInitial">JD</span></div>
-            <span class="user-name" id="userNameDisplay">Loading...</span>
+            <div class="user-avatar" id="userAvatar"><span id="avatarInitial">GU</span></div>
+            <span class="user-name" id="userNameDisplay">Guest User</span>
             <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
@@ -254,7 +219,27 @@
 
 <script>
     let analysisData = {};
-    const API_URL = 'http://localhost:5000/api';
+
+    // ✅ FIX 2: TAKEN EXACTLY FROM AI-ASSISTANT.HTML (Fixes Profile Name & Avatar)
+    function getUser() { return authManager.getCurrentUser(); }
+
+    function updateUserUI() {
+        const user = getUser();
+        if (!user) { 
+            document.getElementById('userNameDisplay').textContent = 'Guest User'; 
+            document.getElementById('avatarInitial').textContent = 'GU'; 
+            return; 
+        }
+        document.getElementById('userNameDisplay').textContent = user.name;
+        const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('avatarInitial').textContent = initials;
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            authManager.logout();
+        }
+    }
 
     async function callMLPrediction(data) {
         try {
@@ -272,10 +257,10 @@
     }
 
     function getUserData() {
-    return {
-        userName: authManager.getUserName()
-    };
-}
+        return {
+            userName: authManager.getUserName()
+        };
+    }
 
     function downloadSampleCSV() {
         const sampleData = `timestamp,power_consumption_W,usage_duration_minutes,appliance,occupancy_status,temperature_setting_C
@@ -295,169 +280,159 @@
         link.download = 'sample_energy_data.csv';
         link.click();
     }
+
     function getSeasonFromDate(dateString) {
-    const date = new Date(dateString);
-    const month = date.getMonth() + 1;
+        const date = new Date(dateString);
+        const month = date.getMonth() + 1;
+        if ([3, 4, 5].includes(month)) return "Summer";
+        if ([6, 7, 8].includes(month)) return "Monsoon";
+        if ([9, 10].includes(month)) return "Autumn";
+        if ([11, 12].includes(month)) return "Winter";
+        return "Spring";
+    }
 
-    if ([3, 4, 5].includes(month)) return "Summer";
-    if ([6, 7, 8].includes(month)) return "Monsoon";
-    if ([9, 10].includes(month)) return "Autumn";
-    if ([11, 12].includes(month)) return "Winter";
-    return "Spring";
-}
+    function getApplianceCategory(name) {
+        if (!name) return "General";
+        name = name.toLowerCase();
+        if (name.includes('ac') || name.includes('fan')) return 'Cooling';
+        if (name.includes('light')) return 'Lighting';
+        if (name.includes('fridge')) return 'Kitchen';
+        if (name.includes('washing')) return 'Laundry';
+        return 'General';
+    }
 
-function getApplianceCategory(name) {
-    if (!name) return "General";
+    async function handleFileUpload(file) {
+        if (!file) return;
 
-    name = name.toLowerCase();
+        const userId = authManager.getUserId();
+        const userName = authManager.getUserName();
 
-    if (name.includes('ac') || name.includes('fan')) return 'Cooling';
-    if (name.includes('light')) return 'Lighting';
-    if (name.includes('fridge')) return 'Kitchen';
-    if (name.includes('washing')) return 'Laundry';
+        document.getElementById('uploadSection').style.display = 'none';
+        document.getElementById('loadingSpinner').style.display = 'block';
 
-    return 'General';
-}
+        const reader = new FileReader();
 
-async function handleFileUpload(file) {
-    if (!file) return;
+        reader.onload = async function(e) {
+            try {
+                const csvData = e.target.result;
+                const rows = csvData.split('\n').slice(1, 200).filter(row => row.trim());
 
-    const userId = authManager.getUserId();
-    const userName = authManager.getUserName();
+                const records = [];
 
-    document.getElementById('uploadSection').style.display = 'none';
-    document.getElementById('loadingSpinner').style.display = 'block';
+                for (let row of rows) {
+                    const cols = row.split(',');
 
-    const reader = new FileReader();
+                    if (cols.length >= 6) {
+                        const dateObj = new Date(cols[0]);
 
-    reader.onload = async function(e) {
-        try {
-            const csvData = e.target.result;
-            const rows = csvData.split('\n').slice(1, 200).filter(row => row.trim());
-
-            const records = [];
-
-            for (let row of rows) {
-                const cols = row.split(',');
-
-                if (cols.length >= 6) {
-                    const dateObj = new Date(cols[0]);
-
-                    records.push({
-                        power_consumption_W: parseFloat(cols[1]) || 0,
-                        usage_duration_minutes: parseFloat(cols[2]) || 0,
-                        appliance: cols[3]?.trim() || 'Unknown',
-                        occupancy_status: cols[4]?.trim() || 'Occupied',
-                        temperature_setting_C: parseFloat(cols[5]) || 24,
-
-                        hour: isNaN(dateObj) ? 12 : dateObj.getHours(),
-                        day_of_week: isNaN(dateObj)
-                            ? "Monday"
-                            : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()],
-
-                        season: getSeasonFromDate(cols[0]),
-                        room_location: 'Living Room',
-                        appliance_category: getApplianceCategory(cols[3]?.trim() || '')
-                    });
+                        records.push({
+                            power_consumption_W: parseFloat(cols[1]) || 0,
+                            usage_duration_minutes: parseFloat(cols[2]) || 0,
+                            appliance: cols[3]?.trim() || 'Unknown',
+                            occupancy_status: cols[4]?.trim() || 'Occupied',
+                            temperature_setting_C: parseFloat(cols[5]) || 24,
+                            hour: isNaN(dateObj) ? 12 : dateObj.getHours(),
+                            day_of_week: isNaN(dateObj) ? "Monday" : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()],
+                            season: getSeasonFromDate(cols[0]),
+                            room_location: 'Living Room',
+                            appliance_category: getApplianceCategory(cols[3]?.trim() || '')
+                        });
+                    }
                 }
-            }
 
-            globalRecords = records;
+                globalRecords = records;
 
-            if (records.length === 0) {
-                throw new Error("CSV file is empty or invalid format");
-            }
+                if (records.length === 0) {
+                    throw new Error("CSV file is empty or invalid format");
+                }
 
-            const response = await fetch('http://localhost:5000/api/batch_predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: userId,
-                    user_name: userName,
+                // ✅ FIX 3: USING THE DYNAMIC API_URL HERE
+                const response = await fetch(`${API_URL}/batch_predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        user_name: userName,
+                        mode: 'csv',
+                        records: records
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Batch prediction failed");
+                }
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || "Prediction failed");
+                }
+
+                const dailyMap = {};
+                globalRecords.forEach(r => {
+                    const day = r.day_of_week;
+                    const energy = (r.power_consumption_W * r.usage_duration_minutes) / 60000;
+                    dailyMap[day] = (dailyMap[day] || 0) + energy;
+                });
+
+                const hourMap = {};
+                globalRecords.forEach(r => {
+                    hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000);
+                });
+
+                analysisData = {
+                    totalEnergy: result.total_energy,
+                    totalCost: result.total_cost,
+                    totalCarbon: result.total_carbon,
+                    avgDailyEnergy: (result.total_energy / 7).toFixed(2),
+                    applianceUsage: result.appliance_usage,
+                    hourlyUsage: result.hourly_usage,
+                    roomUsage: {},
+                    peakHours: [],
+                    alerts: [],
+                    recommendations: [],
+                    waste: [],
+                    dataCount: records.length,
+                    efficiencyScore: 80,
+                    chartData_dailyTrend: { labels: Object.keys(dailyMap), values: Object.values(dailyMap) },
+                    chartData_hourlyUsage: { labels: Object.keys(hourMap).sort((a,b) => a-b), values: Object.keys(hourMap).sort((a,b) => a-b).map(k => hourMap[k]) },
+                    chartData_applianceUsage: { labels: Object.keys(result.appliance_usage), values: Object.values(result.appliance_usage) },
+                    chartData_roomUsage: { labels: Object.keys({}), values: Object.values({}) }
+                }
+
+                analysisData.mode = 'csv';
+                analysisData.timestamp = new Date().toISOString();
+
+                localStorage.setItem('latestPrediction', JSON.stringify({
                     mode: 'csv',
-                    records: records
-                })
-            });
+                    totalEnergy: analysisData.totalEnergy,
+                    totalCost: analysisData.totalCost,
+                    totalCarbon: analysisData.totalCarbon,
+                    efficiencyScore: analysisData.efficiencyScore || 80,
+                    alerts: analysisData.alerts,
+                    recommendations: analysisData.recommendations,
+                    timestamp: analysisData.timestamp,
+                    chartData_dailyTrend: analysisData.chartData_dailyTrend,
+                    chartData_applianceUsage: analysisData.chartData_applianceUsage,
+                    chartData_hourlyUsage: analysisData.chartData_hourlyUsage,
+                    chartData_roomUsage: analysisData.chartData_roomUsage
+                }));
 
-            if (!response.ok) {
-                throw new Error("Batch prediction failed");
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('resultsSection').style.display = 'block';
+
+                displayResults(analysisData);
+
+            } catch (err) {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('uploadSection').style.display = 'block';
+                alert("❌ " + err.message);
             }
+        };
 
-            const result = await response.json();
+        reader.readAsText(file);
+    }
 
-            if (!result.success) {
-                throw new Error(result.error || "Prediction failed");
-            }
-
-            const dailyMap = {};
-            globalRecords.forEach(r => {
-                const day = r.day_of_week;
-                const energy = (r.power_consumption_W * r.usage_duration_minutes) / 60000;
-                dailyMap[day] = (dailyMap[day] || 0) + energy;
-            });
-
-            const hourMap = {};
-            globalRecords.forEach(r => {
-                hourMap[r.hour] = (hourMap[r.hour] || 0) +
-                    (r.power_consumption_W * r.usage_duration_minutes / 60000);
-            });
-
-            analysisData = {
-    totalEnergy: result.total_energy,
-    totalCost: result.total_cost,
-    totalCarbon: result.total_carbon,
-    avgDailyEnergy: (result.total_energy / 7).toFixed(2),
-
-    applianceUsage: result.appliance_usage,
-    hourlyUsage: result.hourlyUsage,
-
-    roomUsage: {},
-    peakHours: [],
-    alerts: [],
-    recommendations: [],
-    waste: [],
-    dataCount: records.length,
-    efficiencyScore: 80,
-
-    chartData_dailyTrend: { labels: Object.keys(dailyMap), values: Object.values(dailyMap) },
-    chartData_hourlyUsage: { labels: Object.keys(hourMap).sort((a,b) => a-b), values: Object.keys(hourMap).sort((a,b) => a-b).map(k => hourMap[k]) },
-    chartData_applianceUsage: { labels: Object.keys(result.appliance_usage), values: Object.values(result.appliance_usage) },
-    chartData_roomUsage: { labels: Object.keys({}), values: Object.values({}) }
-}
-
-            // ✅ STEP: Add mode + timestamp before saving
-            analysisData.mode = 'csv';
-            analysisData.timestamp = new Date().toISOString();
-
-            // ✅ STEP: Save unified latestPrediction for dashboard
-            localStorage.setItem('latestPrediction', JSON.stringify({
-                mode: 'csv',
-                totalEnergy: analysisData.totalEnergy,
-                totalCost: analysisData.totalCost,
-                totalCarbon: analysisData.totalCarbon,
-                efficiencyScore: analysisData.efficiencyScore || 80,
-                alerts: analysisData.alerts,
-                recommendations: analysisData.recommendations,
-                timestamp: analysisData.timestamp,
-                chartData_dailyTrend: analysisData.chartData_dailyTrend,
-                chartData_applianceUsage: analysisData.chartData_applianceUsage,
-                chartData_hourlyUsage: analysisData.chartData_hourlyUsage,
-                chartData_roomUsage: analysisData.chartData_roomUsage
-            }));
-
-            document.getElementById('loadingSpinner').style.display = 'none';
-            document.getElementById('resultsSection').style.display = 'block';
-
-            displayResults(analysisData);
-
-        } catch (err) {
-            document.getElementById('loadingSpinner').style.display = 'none';
-            alert("❌ " + err.message);
-        }
-    };
-
-    reader.readAsText(file);
-}
     function performAnalysis(data) {
         const totalEnergy = data.reduce((sum, d) => sum + d.energy, 0);
         const totalCost = totalEnergy * 7;
@@ -497,118 +472,69 @@ async function handleFileUpload(file) {
             recommendations, waste, dataCount: data.length, efficiencyScore: Math.min(100, Math.max(0, 100 - (totalEnergy / 10)))
         };
     }
-function displayResults(data) {
-    document.getElementById('totalEnergy').textContent = data.totalEnergy;
-    document.getElementById('totalCost').textContent = `₹${data.totalCost}`;
-    document.getElementById('totalCarbon').textContent = data.totalCarbon;
-    document.getElementById('avgEnergy').textContent = data.avgDailyEnergy;
 
-    const dailyMap = {};
+    function displayResults(data) {
+        document.getElementById('totalEnergy').textContent = data.totalEnergy;
+        document.getElementById('totalCost').textContent = `₹${data.totalCost}`;
+        document.getElementById('totalCarbon').textContent = data.totalCarbon;
+        document.getElementById('avgEnergy').textContent = data.avgDailyEnergy;
 
-    globalRecords.forEach(r => {
-        const day = r.day_of_week;
-        const energy = (r.power_consumption_W * r.usage_duration_minutes) / 60000;
+        const dailyMap = {};
+        globalRecords.forEach(r => {
+            const day = r.day_of_week;
+            const energy = (r.power_consumption_W * r.usage_duration_minutes) / 60000;
+            dailyMap[day] = (dailyMap[day] || 0) + energy;
+        });
 
-        dailyMap[day] = (dailyMap[day] || 0) + energy;
-    });
+        const labels = Object.keys(dailyMap);
+        const values = Object.values(dailyMap);
 
-    const labels = Object.keys(dailyMap);
-    const values = Object.values(dailyMap);
+        new Chart(document.getElementById('dailyTrendChart').getContext('2d'), {
+            type: 'line',
+            data: { labels: labels, datasets: [{ label: 'Energy (kWh)', data: values, borderColor: '#2ecc71', backgroundColor: 'rgba(46,204,113,0.1)', tension: 0.4, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
 
-    new Chart(document.getElementById('dailyTrendChart').getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Energy (kWh)',
-                data: values,
-                borderColor: '#2ecc71',
-                backgroundColor: 'rgba(46,204,113,0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true
-        }
-    });
+        new Chart(document.getElementById('applianceChart').getContext('2d'), {
+            type: 'doughnut',
+            data: { labels: Object.keys(data.applianceUsage), datasets: [{ data: Object.values(data.applianceUsage), backgroundColor: ['#2ecc71', '#3498db', '#f39c12', '#e74c3c', '#9b59b6'] }] }
+        });
 
-    new Chart(document.getElementById('applianceChart').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(data.applianceUsage),
-            datasets: [{
-                data: Object.values(data.applianceUsage),
-                backgroundColor: ['#2ecc71', '#3498db', '#f39c12', '#e74c3c', '#9b59b6']
-            }]
-        }
-    });
+        const hourMap = {};
+        globalRecords.forEach(r => {
+            hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000);
+        });
 
-    const hourMap = {};
+        const hours = Object.keys(hourMap).sort((a,b) => a-b);
+        const hourValues = hours.map(h => hourMap[h]);
 
-    globalRecords.forEach(r => {
-        hourMap[r.hour] = (hourMap[r.hour] || 0) +
-            (r.power_consumption_W * r.usage_duration_minutes / 60000);
-    });
+        new Chart(document.getElementById('peakHourChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: hours, datasets: [{ label: 'Energy (kWh)', data: hourValues, backgroundColor: '#f39c12' }] }
+        });
 
-    const hours = Object.keys(hourMap).sort((a,b) => a-b);
-    const hourValues = hours.map(h => hourMap[h]);
+        new Chart(document.getElementById('roomChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: Object.keys(data.roomUsage), datasets: [{ label: 'Energy (kWh)', data: Object.values(data.roomUsage), backgroundColor: '#3498db' }] }
+        });
 
-    new Chart(document.getElementById('peakHourChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: hours,
-            datasets: [{
-                label: 'Energy (kWh)',
-                data: hourValues,
-                backgroundColor: '#f39c12'
-            }]
-        }
-    });
+        document.getElementById('alertsList').innerHTML =
+            data.alerts.map(a => `<div class="alert-card alert-${a.type}"><i class="fas fa-${a.type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>${a.message}</div>`).join('') || '<p class="text-success">✅ No critical alerts detected.</p>';
 
-    new Chart(document.getElementById('roomChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: Object.keys(data.roomUsage),
-            datasets: [{
-                label: 'Energy (kWh)',
-                data: Object.values(data.roomUsage),
-                backgroundColor: '#3498db'
-            }]
-        }
-    });
+        document.getElementById('recommendationsList').innerHTML =
+            data.recommendations.map(r => `<div class="rec-card"><i class="fas fa-check-circle text-success me-2"></i>${r}</div>`).join('');
 
-    document.getElementById('alertsList').innerHTML =
-        data.alerts.map(a =>
-            `<div class="alert-card alert-${a.type}">
-                <i class="fas fa-${a.type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
-                ${a.message}
-            </div>`
-        ).join('') || '<p class="text-success">✅ No critical alerts detected.</p>';
+        document.getElementById('wasteList').innerHTML =
+            data.waste.map(w => `<div class="alert-card alert-danger"><i class="fas fa-trash-alt me-2"></i>${w}</div>`).join('') || '<p class="text-success">✅ No waste detected!</p>';
 
-    document.getElementById('recommendationsList').innerHTML =
-        data.recommendations.map(r =>
-            `<div class="rec-card">
-                <i class="fas fa-check-circle text-success me-2"></i>${r}
-            </div>`
-        ).join('');
-
-    document.getElementById('wasteList').innerHTML =
-        data.waste.map(w =>
-            `<div class="alert-card alert-danger">
-                <i class="fas fa-trash-alt me-2"></i>${w}
-            </div>`
-        ).join('') || '<p class="text-success">✅ No waste detected!</p>';
-
-    document.getElementById('detailedReport').innerHTML = `
-        <p><strong>Analysis Summary:</strong> ${data.dataCount} records analyzed</p>
-        <p><strong>Efficiency Score:</strong> ${data.efficiencyScore}%</p>
-        <p><strong>Peak Hours:</strong> ${data.peakHours.length > 0 ? data.peakHours.join(', ') + ':00' : 'None'}</p>
-        <p><strong>Highest Usage:</strong> ${Object.entries(data.applianceUsage).sort((a,b)=>b[1]-a[1])[0]?.[0] || 'N/A'}</p>
-        <p><strong>Monthly Savings:</strong> ₹${(data.totalCost * 0.2).toFixed(2)}</p>
-    `;
-}
+        document.getElementById('detailedReport').innerHTML = `
+            <p><strong>Analysis Summary:</strong> ${data.dataCount} records analyzed</p>
+            <p><strong>Efficiency Score:</strong> ${data.efficiencyScore}%</p>
+            <p><strong>Peak Hours:</strong> ${data.peakHours.length > 0 ? data.peakHours.join(', ') + ':00' : 'None'}</p>
+            <p><strong>Highest Usage:</strong> ${Object.entries(data.applianceUsage).sort((a,b)=>b[1]-a[1])[0]?.[0] || 'N/A'}</p>
+            <p><strong>Monthly Savings:</strong> ₹${(data.totalCost * 0.2).toFixed(2)}</p>
+        `;
+    }
 
     function downloadReport() {
         const reportContent = `SMART ENERGY MONITOR - CSV ANALYSIS REPORT\nDate: ${new Date().toLocaleString()}\nTotal Energy: ${analysisData.totalEnergy} kWh\nCost: ₹${analysisData.totalCost}\nCarbon: ${analysisData.totalCarbon} kg CO₂\nEfficiency: ${analysisData.efficiencyScore}%\nRecords: ${analysisData.dataCount}\n\nALERTS:\n${analysisData.alerts.map(a => '- ' + a.message).join('\n')}\n\nRECOMMENDATIONS:\n${analysisData.recommendations.map(r => '- ' + r).join('\n')}\n\nWASTE:\n${analysisData.waste.length > 0 ? analysisData.waste.map(w => '- ' + w).join('\n') : '- No waste'}\n\nPEAK HOURS: ${analysisData.peakHours.join(', ')}:00`;
@@ -619,87 +545,60 @@ function displayResults(data) {
         link.click();
     }
 
-function saveToHistory() {
-    if (!analysisData || !analysisData.totalEnergy) {
-        alert("❌ No analysis data available. Please upload and analyze a CSV first.");
-        return;
-    }
-
-    const user = authManager.getCurrentUser();
-    const userId = user ? (user.id || user.name) : 'guest';
-
-    let reports = JSON.parse(
-        localStorage.getItem(`csvReports_${userId}`) || '[]'
-    );
-
-    const report = {
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-        mode: 'csv',
-
-        totalEnergy: analysisData.totalEnergy,
-        totalCost: analysisData.totalCost,
-        totalCarbon: analysisData.totalCarbon,
-        efficiencyScore: analysisData.efficiencyScore || 80,
-
-        alerts: (analysisData.alerts || []).map(a => a.message || a),
-        recommendations: analysisData.recommendations || [],
-
-        chartData: {
-            type: 'csv',
-            dailyTrend: analysisData.chartData_dailyTrend || { labels: [], values: [] },
-            applianceUsage: analysisData.chartData_applianceUsage || { labels: [], values: [] },
-            hourlyUsage: analysisData.chartData_hourlyUsage || { labels: [], values: [] },
-            roomUsage: analysisData.chartData_roomUsage || { labels: [], values: [] }
+    function saveToHistory() {
+        if (!analysisData || !analysisData.totalEnergy) {
+            alert("❌ No analysis data available. Please upload and analyze a CSV first.");
+            return;
         }
-    };
 
-    reports.push(report);
+        const user = authManager.getCurrentUser();
+        const userId = user ? (user.id || user.name) : 'guest';
 
-    localStorage.setItem(
-        `csvReports_${userId}`,
-        JSON.stringify(reports)
-    );
+        let reports = JSON.parse(localStorage.getItem(`csvReports_${userId}`) || '[]');
 
-    alert('✅ CSV Report saved to Reports page!');
-}
+        const report = {
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            mode: 'csv',
+            totalEnergy: analysisData.totalEnergy,
+            totalCost: analysisData.totalCost,
+            totalCarbon: analysisData.totalCarbon,
+            efficiencyScore: analysisData.efficiencyScore || 80,
+            alerts: (analysisData.alerts || []).map(a => a.message || a),
+            recommendations: analysisData.recommendations || [],
+            chartData: {
+                type: 'csv',
+                dailyTrend: analysisData.chartData_dailyTrend || { labels: [], values: [] },
+                applianceUsage: analysisData.chartData_applianceUsage || { labels: [], values: [] },
+                hourlyUsage: analysisData.chartData_hourlyUsage || { labels: [], values: [] },
+                roomUsage: analysisData.chartData_roomUsage || { labels: [], values: [] }
+            }
+        };
 
-function saveReport(mode, data) {
-    if (!data) {
-        alert("❌ No data available!");
-        return;
+        reports.push(report);
+        localStorage.setItem(`csvReports_${userId}`, JSON.stringify(reports));
+        alert('✅ CSV Report saved to Reports page!');
     }
 
-    const user = authManager.getCurrentUser();
-    const userId = user ? (user.id || user.name) : 'guest';
+    function saveReport(mode, data) {
+        if (!data) { alert("❌ No data available!"); return; }
+        const user = authManager.getCurrentUser();
+        const userId = user ? (user.id || user.name) : 'guest';
+        let reports = JSON.parse(localStorage.getItem(`${mode}Reports_${userId}`) || '[]');
+        const report = {
+            id: Date.now(), timestamp: new Date().toISOString(), mode: mode,
+            totalEnergy: data.totalEnergy, totalCost: data.totalCost, totalCarbon: data.totalCarbon,
+            efficiencyScore: data.efficiencyScore || 80, alerts: data.alerts || [], recommendations: data.recommendations || []
+        };
+        reports.push(report);
+        localStorage.setItem(`${mode}Reports_${userId}`, JSON.stringify(reports));
+        alert(`✅ ${mode.toUpperCase()} saved!`);
+    }
 
-    let reports = JSON.parse(
-        localStorage.getItem(`${mode}Reports_${userId}`) || '[]'
-    );
-
-    const report = {
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-        mode: mode,
-
-        totalEnergy: data.totalEnergy,
-        totalCost: data.totalCost,
-        totalCarbon: data.totalCarbon,
-        efficiencyScore: data.efficiencyScore || 80,
-
-        alerts: data.alerts || [],
-        recommendations: data.recommendations || []
-    };
-
-    reports.push(report);
-
-    localStorage.setItem(
-        `${mode}Reports_${userId}`,
-        JSON.stringify(reports)
-    );
-
-    alert(`✅ ${mode.toUpperCase()} saved!`);
-}
+    // ✅ FIX 4: THE MOST IMPORTANT LINE! THIS MAKES THE USERNAME LOAD!
+    document.addEventListener('DOMContentLoaded', function () { 
+        updateUserUI(); 
+    });
 </script>
 </body>
 </html>

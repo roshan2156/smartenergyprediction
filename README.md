@@ -185,10 +185,15 @@ Go to Render Dashboard -> Environment Tab -> Add Variable:
   - Temperature
 
 ## 📸 Screenshots
-*(Add screenshots of your application here to showcase the UI)*
+*(Website)*
 <img width="1897" height="902" alt="image" src="https://github.com/user-attachments/assets/29048c4a-4c17-4c7e-8f74-fa1639d1fd77" />
-
-- ![Prediction Page]()
+<img width="1898" height="898" alt="image" src="https://github.com/user-attachments/assets/46fb2b91-8798-4e7b-b167-632d6099cd8a" />
+<img width="1897" height="866" alt="image" src="https://github.com/user-attachments/assets/2fbad41c-d470-41ed-84df-e033e27241ba" />
+<img width="1892" height="903" alt="image" src="https://github.com/user-attachments/assets/193719d8-b2cf-44fa-9b67-e84720b58ce1" />
+<img width="1898" height="887" alt="image" src="https://github.com/user-attachments/assets/2b4e1677-9ec2-45d1-94aa-f185b8bbf7b6" />
+*(Database-MySQL)*
+<img width="1838" height="897" alt="image" src="https://github.com/user-attachments/assets/348db9a4-bf01-42da-80dd-8df86047c7d5" />
+<img width="1822" height="892" alt="image" src="https://github.com/user-attachments/assets/57d5ca4b-6b02-4eb8-b654-cc9d60888828" />
 
 ## 🚧 Future Improvements
 - [ ] 📱 Mobile responsive design improvements

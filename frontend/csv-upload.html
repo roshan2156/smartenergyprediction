@@ -156,12 +156,12 @@
 
     <div class="loading-spinner" id="loadingSpinner">
         <div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div>
-        <p class="mt-3 text-white">Analyzing your data with AI...</p>
+        <p class="mt-3 text-white">Analyzing your data with ML model...</p>
     </div>
 
     <div class="results-section" id="resultsSection">
         <div class="row g-4 mb-4">
-            <div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><h3 id="totalEnergy">0</h3><p>Total Energy (kWh)</p></div></div>
+            <div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><h3 id="totalEnergy">0</h3><p>Predicted Energy (kWh)</p></div></div>
             <div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-rupee-sign"></i></div><h3 id="totalCost">₹0</h3><p>Estimated Cost</p></div></div>
             <div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-leaf"></i></div><h3 id="totalCarbon">0</h3><p>Carbon Emission (kg)</p></div></div>
             <div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><h3 id="avgEnergy">0</h3><p>Avg Daily Energy (kWh)</p></div></div>
@@ -177,16 +177,16 @@
         <div class="stat-card"><h5><i class="fas fa-bell text-warning"></i> Smart Alerts</h5><div id="alertsList"></div></div>
         <div class="stat-card"><h5><i class="fas fa-lightbulb text-success"></i> Energy Saving Recommendations</h5><div id="recommendationsList"></div></div>
         <div class="stat-card"><h5><i class="fas fa-trash-alt text-danger"></i> Waste Detection</h5><div id="wasteList"></div></div>
-        <div class="stat-card"><h5><i class="fas fa-file-alt text-info"></i> Detailed Analysis Report</h5><div id="detailedReport"></div>
+        
+        <!-- ✅ DATA SCIENCE REPORT SECTION -->
+        <div class="stat-card"><h5><i class="fas fa-brain text-info"></i> Detailed ML Analysis Report</h5><div id="detailedReport"></div>
             <button class="btn btn-success mt-3" onclick="downloadReport()"><i class="fas fa-download"></i> Download Full Report</button>
             <button class="btn btn-primary mt-3 ms-2" onclick="saveToHistory()"><i class="fas fa-save"></i> Save to History</button>
         </div>
     </div>
 </div>
 
-<!-- ONLY ONE SCRIPT BLOCK TO PREVENT DUPLICATE ERRORS -->
 <script>
-    // ✅ FIX: Dynamic API URL for Local vs Render
     const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:5000/api' 
         : '/api';
@@ -205,16 +205,10 @@
             document.getElementById('userNameDisplay').textContent = user.name;
             const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             document.getElementById('avatarInitial').textContent = initials;
-        } catch (e) {
-            console.error("UI Error:", e);
-        }
+        } catch (e) { console.error("UI Error:", e); }
     }
 
-    function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            authManager.logout();
-        }
-    }
+    function logout() { if (confirm('Are you sure you want to logout?')) authManager.logout(); }
 
     function downloadSampleCSV() {
         const sampleData = `timestamp,power_consumption_W,usage_duration_minutes,appliance,occupancy_status,temperature_setting_C
@@ -236,29 +230,16 @@
     }
 
     function getSeasonFromDate(dateString) {
-        try {
-            const month = new Date(dateString).getMonth() + 1;
-            if ([3, 4, 5].includes(month)) return "Summer";
-            if ([6, 7, 8].includes(month)) return "Monsoon";
-            if ([9, 10].includes(month)) return "Autumn";
-            if ([11, 12].includes(month)) return "Winter";
-            return "Spring";
-        } catch(e) { return "Spring"; }
+        try { const month = new Date(dateString).getMonth() + 1; if ([3,4,5].includes(month)) return "Summer"; if ([6,7,8].includes(month)) return "Monsoon"; if ([9,10].includes(month)) return "Autumn"; if ([11,12].includes(month)) return "Winter"; return "Spring"; } catch(e) { return "Spring"; }
     }
 
     function getApplianceCategory(name) {
-        if (!name) return "General";
-        name = name.toLowerCase();
-        if (name.includes('ac') || name.includes('fan')) return 'Cooling';
-        if (name.includes('light')) return 'Lighting';
-        if (name.includes('fridge')) return 'Kitchen';
-        if (name.includes('washing')) return 'Laundry';
-        return 'General';
+        if (!name) return "General"; name = name.toLowerCase();
+        if (name.includes('ac') || name.includes('fan')) return 'Cooling'; if (name.includes('light')) return 'Lighting'; if (name.includes('fridge')) return 'Kitchen'; if (name.includes('washing')) return 'Laundry'; return 'General';
     }
 
     async function handleFileUpload(file) {
         if (!file) return;
-
         const userId = authManager.getUserId();
         const userName = authManager.getUserName();
 
@@ -266,7 +247,6 @@
         document.getElementById('loadingSpinner').style.display = 'block';
 
         const reader = new FileReader();
-
         reader.onload = async function(e) {
             try {
                 const csvData = e.target.result;
@@ -293,60 +273,52 @@
                 }
 
                 globalRecords = records;
-
                 if (records.length === 0) throw new Error("CSV file is empty or invalid format");
 
                 const response = await fetch(`${API_URL}/batch_predict`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        user_name: userName,
-                        mode: 'csv',
-                        records: records
-                    })
+                    body: JSON.stringify({ user_id: userId, user_name: userName, mode: 'csv', records: records })
                 });
 
                 if (!response.ok) throw new Error("Network error: Server did not respond");
                 const result = await response.json();
-                if (!result) throw new Error("Server returned empty data");
-                if (result.success === false) throw new Error(result.error || "Prediction failed");
+                if (!result || result.success === false) throw new Error(result.error || "Prediction failed");
 
-                // Force safe empty objects
-                const safeAppUsage = (result.appliance_usage && typeof result.appliance_usage === 'object' && !Array.isArray(result.appliance_usage)) ? result.appliance_usage : {};
+                // ✅ DATA SCIENCE FALLBACKS
+                const finalEnergy = result.total_energy || 0;
+                const finalCost = result.total_cost || (finalEnergy * 7);
+                const finalCarbon = result.total_carbon || (finalEnergy * 0.82);
                 const safeHourUsage = (result.hourly_usage && typeof result.hourly_usage === 'object' && !Array.isArray(result.hourly_usage)) ? result.hourly_usage : {};
+                
+                let safeAppUsage = (result.appliance_usage && typeof result.appliance_usage === 'object' && !Array.isArray(result.appliance_usage)) ? result.appliance_usage : {};
+                if (Object.keys(safeAppUsage).length === 0) {
+                    globalRecords.forEach(r => {
+                        const energy = (r.power_consumption_W * r.usage_duration_minutes) / 60000;
+                        safeAppUsage[r.appliance] = (safeAppUsage[r.appliance] || 0) + energy;
+                    });
+                }
 
                 const dailyMap = {};
-                globalRecords.forEach(r => {
-                    const day = r.day_of_week;
-                    const energy = (r.power_consumption_W * r.usage_duration_minutes) / 60000;
-                    dailyMap[day] = (dailyMap[day] || 0) + energy;
-                });
-
+                globalRecords.forEach(r => { dailyMap[r.day_of_week] = (dailyMap[r.day_of_week] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); });
                 const hourMap = {};
-                globalRecords.forEach(r => {
-                    hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000);
-                });
+                globalRecords.forEach(r => { hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); });
 
                 analysisData = {
-                    totalEnergy: result.total_energy || 0,
-                    totalCost: result.total_cost || 0,
-                    totalCarbon: result.total_carbon || 0,
-                    avgDailyEnergy: (result.total_energy / 7).toFixed(2) || 0,
-                    applianceUsage: safeAppUsage,
-                    hourlyUsage: safeHourUsage,
-                    roomUsage: {},
-                    peakHours: [], alerts: [], recommendations: [], waste: [],
+                    totalEnergy: finalEnergy, totalCost: finalCost, totalCarbon: finalCarbon,
+                    avgDailyEnergy: (finalEnergy / 7).toFixed(2) || 0,
+                    applianceUsage: safeAppUsage, hourlyUsage: safeHourUsage,
+                    roomUsage: {}, peakHours: [], alerts: [], recommendations: [], waste: [],
                     dataCount: records.length, efficiencyScore: 80,
                     chartData_dailyTrend: { labels: Object.keys(dailyMap), values: Object.values(dailyMap) },
                     chartData_hourlyUsage: { labels: Object.keys(hourMap).sort((a,b) => a-b), values: Object.keys(hourMap).sort((a,b) => a-b).map(k => hourMap[k]) },
                     chartData_applianceUsage: { labels: Object.keys(safeAppUsage), values: Object.values(safeAppUsage) },
-                    chartData_roomUsage: { labels: [], values: [] }
+                    chartData_roomUsage: { labels: [], values: [] },
+                    data_science_metrics: result.data_science_metrics || null // ✅ CAPTURE ML METRICS
                 };
 
                 analysisData.mode = 'csv';
                 analysisData.timestamp = new Date().toISOString();
-
                 try { localStorage.setItem('latestPrediction', JSON.stringify(analysisData)); } catch (e) {}
 
                 document.getElementById('loadingSpinner').style.display = 'none';
@@ -380,24 +352,16 @@
             document.getElementById('avgEnergy').textContent = data.avgDailyEnergy || 0;
 
             const dailyMap = {};
-            if (Array.isArray(globalRecords)) {
-                globalRecords.forEach(r => { if(r.day_of_week) { dailyMap[r.day_of_week] = (dailyMap[r.day_of_week] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); } });
-            }
-
+            if (Array.isArray(globalRecords)) { globalRecords.forEach(r => { if(r.day_of_week) dailyMap[r.day_of_week] = (dailyMap[r.day_of_week] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); }); }
             const hourMap = {};
-            if (Array.isArray(globalRecords)) {
-                globalRecords.forEach(r => { if(r.hour != null) { hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); } });
-            }
+            if (Array.isArray(globalRecords)) { globalRecords.forEach(r => { if(r.hour != null) hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); }); }
 
             const dailyCtx = document.getElementById('dailyTrendChart')?.getContext('2d');
             if (dailyCtx) new Chart(dailyCtx, { type: 'line', data: { labels: Object.keys(dailyMap), datasets: [{ label: 'Energy (kWh)', data: Object.values(dailyMap), borderColor: '#2ecc71', backgroundColor: 'rgba(46,204,113,0.1)', tension: 0.4, fill: true }] }, options: { responsive: true } });
-
             const appCtx = document.getElementById('applianceChart')?.getContext('2d');
             if (appCtx) new Chart(appCtx, { type: 'doughnut', data: { labels: Object.keys(applianceUsage), datasets: [{ data: Object.values(applianceUsage), backgroundColor: ['#2ecc71', '#3498db', '#f39c12', '#e74c3c', '#9b59b6'] }] } });
-
             const peakCtx = document.getElementById('peakHourChart')?.getContext('2d');
             if (peakCtx) { const hours = Object.keys(hourMap).sort((a,b) => a-b); new Chart(peakCtx, { type: 'bar', data: { labels: hours, datasets: [{ label: 'Energy (kWh)', data: hours.map(h => hourMap[h]), backgroundColor: '#f39c12' }] } }); }
-
             const roomCtx = document.getElementById('roomChart')?.getContext('2d');
             if (roomCtx) new Chart(roomCtx, { type: 'bar', data: { labels: Object.keys(roomUsage), datasets: [{ label: 'Energy (kWh)', data: Object.values(roomUsage), backgroundColor: '#3498db' }] } });
 
@@ -405,16 +369,45 @@
             document.getElementById('recommendationsList').innerHTML = recommendations.map(r => `<div class="rec-card"><i class="fas fa-check-circle text-success me-2"></i>${r}</div>`).join('') || '<p class="text-muted">No specific recommendations.</p>';
             document.getElementById('wasteList').innerHTML = waste.map(w => `<div class="alert-card alert-danger"><i class="fas fa-trash-alt me-2"></i>${w}</div>`).join('') || '<p class="text-success">✅ No waste detected!</p>';
 
+            // ✅ DATA SCIENCE DETAILED REPORT
+            const dsMetrics = (data.data_science_metrics && typeof data.data_science_metrics === 'object') ? data.data_science_metrics : null;
+            let dsHtml = `<p><strong>Analysis Summary:</strong> ${data.dataCount || 0} records analyzed</p>`;
+            
+            if (dsMetrics) {
+                const r2 = (dsMetrics.r_squared_score * 100).toFixed(2);
+                dsHtml += `
+                <div class="alert-card alert-info mt-3" style="border-left: 5px solid #3498db; background: #eaf2f8;">
+                    <h6 style="color:#2c3e50"><i class="fas fa-brain me-2"></i>Machine Learning Insights</h6>
+                    <p class="mb-1"><strong>Algorithm:</strong> ${dsMetrics.model_used}</p>
+                    <p class="mb-1"><strong>Features Used:</strong> ${dsMetrics.features_used.join(', ')}</p>
+                    <p class="mb-1"><strong>R² Score (Accuracy):</strong> <span style="color:${r2 > 70 ? '#27ae60' : '#e74c3c'}; font-weight:bold;">${r2}%</span></p>
+                    <p class="mb-0"><em>R² > 70% means the model learned the patterns very well!</em></p>
+                </div>
+                <h6 class="mt-3">Actual vs Predicted (Sample)</h6>
+                <table class="table table-sm table-bordered mt-2">
+                    <thead class="table-light"><tr><th>Row</th><th>Actual (kWh)</th><th>ML Predicted (kWh)</th><th>Difference</th></tr></thead>
+                    <tbody>`;
+                
+                dsMetrics.sample_predictions.forEach((pred, i) => {
+                    const diff = Math.abs(pred.actual - pred.predicted).toFixed(4);
+                    dsHtml += `<tr><td>${i+1}</td><td>${pred.actual}</td><td>${pred.predicted}</td><td>${diff}</td></tr>`;
+                });
+                dsHtml += `</tbody></table>`;
+            } else {
+                dsHtml += `<p><strong>Efficiency Score:</strong> ${data.efficiencyScore || 0}%</p>`;
+            }
+
             let highestUsage = 'N/A';
             try { const sorted = Object.entries(applianceUsage).sort((a,b) => b[1] - a[1]); if (sorted.length > 0) highestUsage = sorted[0][0]; } catch (e) {}
 
-            document.getElementById('detailedReport').innerHTML = `
-                <p><strong>Analysis Summary:</strong> ${data.dataCount || 0} records analyzed</p>
-                <p><strong>Efficiency Score:</strong> ${data.efficiencyScore || 0}%</p>
-                <p><strong>Peak Hours:</strong> ${peakHours.length > 0 ? peakHours.join(', ') + ':00' : 'None'}</p>
+            dsHtml += `
+                <p class="mt-3"><strong>Peak Hours:</strong> ${peakHours.length > 0 ? peakHours.join(', ') + ':00' : 'None'}</p>
                 <p><strong>Highest Usage:</strong> ${highestUsage}</p>
-                <p><strong>Monthly Savings:</strong> ₹${((data.totalCost || 0) * 0.2).toFixed(2)}</p>
+                <p><strong>Monthly Savings Potential:</strong> ₹${((data.totalCost || 0) * 0.2).toFixed(2)}</p>
             `;
+            
+            document.getElementById('detailedReport').innerHTML = dsHtml;
+
         } catch (err) {
             console.error("Display Error:", err);
             alert("❌ Error displaying results: " + err.message);
@@ -423,13 +416,12 @@
 
     function downloadReport() {
         try {
-            const alerts = Array.isArray(analysisData.alerts) ? analysisData.alerts : [];
-            const recommendations = Array.isArray(analysisData.recommendations) ? analysisData.recommendations : [];
-            const reportContent = `SMART ENERGY MONITOR - CSV ANALYSIS REPORT\nDate: ${new Date().toLocaleString()}\nTotal Energy: ${analysisData.totalEnergy || 0} kWh\nCost: ₹${analysisData.totalCost || 0}\nCarbon: ${analysisData.totalCarbon || 0} kg CO₂\n\nALERTS:\n${alerts.map(a => '- ' + (a.message || a)).join('\n')}\n\nRECOMMENDATIONS:\n${recommendations.map(r => '- ' + r).join('\n')}`;
+            const dsMetrics = analysisData.data_science_metrics || {};
+            const reportContent = `SMART ENERGY MONITOR - ML DATA SCIENCE REPORT\nDate: ${new Date().toLocaleString()}\nPredicted Energy: ${analysisData.totalEnergy || 0} kWh\nCost: ₹${analysisData.totalCost || 0}\nCarbon: ${analysisData.totalCarbon || 0} kg CO₂\n\nMACHINE LEARNING METRICS:\nAlgorithm: ${dsMetrics.model_used || 'N/A'}\nR² Score: ${((dsMetrics.r_squared_score || 0)*100).toFixed(2)}%\n`;
             const blob = new Blob([reportContent], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `energy_report_${new Date().toISOString().slice(0,19)}.txt`;
+            link.download = `ml_report_${new Date().toISOString().slice(0,19)}.txt`;
             link.click();
         } catch(e) { alert("Could not download report."); }
     }
@@ -444,11 +436,11 @@
                 id: Date.now(), timestamp: new Date().toISOString(), mode: 'csv',
                 totalEnergy: analysisData.totalEnergy, totalCost: analysisData.totalCost, totalCarbon: analysisData.totalCarbon,
                 efficiencyScore: analysisData.efficiencyScore || 80, alerts: (analysisData.alerts || []).map(a => a.message || a),
-                recommendations: analysisData.recommendations || [],
+                recommendations: analysisData.recommendations || [], data_science_metrics: analysisData.data_science_metrics || null,
                 chartData: { type: 'csv', dailyTrend: analysisData.chartData_dailyTrend || { labels: [], values: [] }, applianceUsage: analysisData.chartData_applianceUsage || { labels: [], values: [] } }
             });
             localStorage.setItem(`csvReports_${userId}`, JSON.stringify(reports));
-            alert('✅ CSV Report saved to Reports page!');
+            alert('✅ ML Report saved to Reports page!');
         } catch(e) { alert("❌ Could not save to history."); }
     }
 

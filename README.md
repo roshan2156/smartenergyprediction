@@ -1,6 +1,6 @@
 # ⚡ Smart Electricity Consumption Monitoring and Prediction System
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-smartenergyprediction-blue?style=for-the-badge&logo=render)](https://smart-energy-monitor-zdy2.onrender.com)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-smartenergyprediction-blue?style=for-the-badge&logo=render)](https://smartenergyprediction-4.onrender.com)
 
 ## 📌 Overview
 Smart Energy Monitor is a full-stack AI-based web application that predicts energy consumption, cost, and carbon emissions. It provides analytics dashboards, CSV uploads, and intelligent recommendations to optimize energy usage.

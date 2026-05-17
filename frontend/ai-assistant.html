@@ -6,6 +6,7 @@
     <title>AI Assistant - Smart Energy Monitor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/auth.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -62,10 +63,16 @@
         }
         .nav-links a:hover::after { width: 100%; }
         .nav-links a:hover { color: #2ecc71; }
+        
+        /* User Menu Dropdown */
+        .user-menu-container { position: relative; }
         .user-info {
             display: flex; align-items: center; gap: 20px;
             background: #f8f9fa; padding: 8px 20px; border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
+        .user-info:hover { background: #e9ecef; transform: translateY(-1px); }
         .user-avatar {
             width: 40px; height: 40px;
             background: linear-gradient(135deg, #2ecc71, #3498db);
@@ -78,6 +85,42 @@
             border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 500;
         }
         .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        
+        /* Dropdown Menu */
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            overflow: hidden;
+            z-index: 1100;
+            animation: dropdownFade 0.2s ease;
+        }
+        @keyframes dropdownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+        .dropdown-item i { width: 20px; color: #2ecc71; }
+        .dropdown-item:hover { background: #f8f9fa; color: #2ecc71; }
+        .dropdown-divider { height: 1px; background: #e9ecef; margin: 5px 0; }
+        
         .container { max-width: 1400px; margin: 100px auto 50px; padding: 20px; }
         .chat-container {
             background: white; border-radius: 25px; overflow: hidden;
@@ -125,11 +168,46 @@
         .suggestion-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .suggestion-btn { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.3s; }
         .suggestion-btn:hover { background: #2ecc71; color: white; }
+        
+        /* Settings Panel */
+        .settings-panel { display: none; background: white; border-radius: 25px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; }
+        .settings-panel.show { display: block; }
+        .back-to-home { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2ecc71, #3498db); border: none; padding: 10px 20px; border-radius: 50px; color: white; font-weight: 500; margin-bottom: 20px; cursor: pointer; transition: all 0.3s; }
+        .back-to-home:hover { transform: translateX(-5px); opacity: 0.9; }
+        .form-label { font-weight: 600; color: #2c3e50; margin-bottom: 8px; }
+        .form-control, .form-select { border-radius: 12px; padding: 12px 15px; border: 2px solid #e9ecef; transition: all 0.3s; }
+        .form-control:focus, .form-select:focus { border-color: #2ecc71; box-shadow: 0 0 0 3px rgba(46,204,113,0.1); }
+        .btn-save { background: linear-gradient(135deg, #2ecc71, #3498db); border: none; border-radius: 12px; padding: 12px 30px; font-weight: 600; width: 100%; transition: all 0.3s; color: white; }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46,204,113,0.3); }
+        .alert-custom { border-radius: 12px; margin-bottom: 20px; }
+        
+        /* Profile Modal */
+        .profile-modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .profile-modal-content { background: white; margin: 60px auto; max-width: 950px; width: 90%; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; animation: slideDown 0.3s ease; max-height: 85vh; overflow-y: auto; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .profile-modal-header { background: linear-gradient(135deg, #2ecc71, #3498db); padding: 30px; text-align: center; color: white; }
+        .profile-avatar-large { width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 48px; font-weight: bold; color: #2ecc71; }
+        .close-modal { float: right; font-size: 32px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; margin-top: -10px; }
+        .close-modal:hover { opacity: 0.8; }
+        .profile-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 25px; }
+        .profile-stat-item { background: #f8f9fa; border-radius: 20px; padding: 20px; text-align: center; }
+        .profile-stat-item i { margin-bottom: 10px; }
+        .profile-stat-item h4 { font-size: 28px; font-weight: 700; color: #2c3e50; margin: 10px 0 5px; }
+        .profile-info-section { padding: 0 25px 25px 25px; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e9ecef; }
+        .info-label { font-weight: 600; color: #7f8c8d; }
+        .info-value { color: #2c3e50; font-weight: 500; }
+        
+        .main-content.hide { display: none; }
+        
         @media (max-width: 768px) {
             .nav-container { flex-direction: column; gap: 15px; padding: 15px 20px; }
             .nav-links { gap: 20px; flex-wrap: wrap; justify-content: center; }
             .container { margin-top: 160px; }
             .message-content { max-width: 85%; }
+            .user-info { padding: 5px 15px; }
+            .user-name { display: none; }
         }
     </style>
 </head>
@@ -137,7 +215,7 @@
 
 <header class="header">
     <div class="nav-container">
-        <a href="home.html" class="logo">
+        <a href="home.html" class="logo" id="logoLink">
             <div class="logo-icon"><i class="fas fa-bolt"></i></div>
             <div class="logo-text">
                 <h2>Smart Energy Monitor</h2>
@@ -145,51 +223,109 @@
             </div>
         </a>
         <ul class="nav-links">
-            <li><a href="home.html">Home</a></li>
+            <li><a href="home.html" id="homeNavLink">Home</a></li>
             <li><a href="dashboard.html">Dashboard</a></li>
             <li><a href="reports.html">Reports</a></li>
             <li><a href="history.html">History</a></li>
         </ul>
-        <div class="user-info" id="userInfo">
-            <div class="user-avatar" id="userAvatar"><span id="avatarInitial"></span></div>
-            <span class="user-name" id="userNameDisplay"></span>
-            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <div class="user-menu-container">
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar"><span id="avatarInitial"></span></div>
+                <span class="user-name" id="userNameDisplay"></span>
+                <button class="logout-btn" onclick="event.stopPropagation(); logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div class="user-dropdown" id="userDropdown">
+                <button class="dropdown-item" id="dropdownProfile"><i class="fas fa-user-circle"></i> My Profile</button>
+                <button class="dropdown-item" id="dropdownSettings"><i class="fas fa-cog"></i> Settings</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="dropdownLogout" style="color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
         </div>
     </div>
 </header>
 
-<div class="container">
-    <div class="chat-container">
-        <div class="chat-header">
-            <i class="fas fa-robot"></i>
-            <div>
-                <h3>AI Energy Assistant</h3>
-                <p>Ask me anything about energy savings, recommendations, or alerts!</p>
-            </div>
+<!-- Profile Modal -->
+<div id="profileModal" class="profile-modal">
+    <div class="profile-modal-content">
+        <div class="profile-modal-header">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <div class="profile-avatar-large" id="modalAvatar">U</div>
+            <h2 id="modalName">User Name</h2>
+            <p id="modalEmail">user@example.com</p>
+            <p><i class="fas fa-calendar-alt me-2"></i>Member since: <span id="memberSince">Loading...</span></p>
         </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message ai">
-                <div class="message-avatar"><i class="fas fa-robot"></i></div>
-                <div class="message-content">
-                    👋 Hi! I'm your AI Energy Assistant. I can help you with:<br><br>
-                    • 💡 Energy saving recommendations<br>
-                    • ⚠️ Custom alerts based on your usage<br>
-                    • 💰 Cost saving calculations<br>
-                    • 📊 Personalized energy analysis<br><br>
-                    <strong>Try asking:</strong> "How can I save money on my AC?" or "Give me energy saving tips"
-                </div>
-            </div>
+        <div class="profile-stats-grid">
+            <div class="profile-stat-item"><i class="fas fa-bolt fa-2x" style="color: #2ecc71;"></i><h4 id="modalTotalEnergy">0</h4><p>Total Energy (kWh)</p></div>
+            <div class="profile-stat-item"><i class="fas fa-rupee-sign fa-2x" style="color: #f39c12;"></i><h4 id="modalTotalSavings">₹0</h4><p>Est. Savings</p></div>
+            <div class="profile-stat-item"><i class="fas fa-leaf fa-2x" style="color: #27ae60;"></i><h4 id="modalCarbonSaved">0</h4><p>Carbon Saved (kg)</p></div>
+            <div class="profile-stat-item"><i class="fas fa-chart-line fa-2x" style="color: #3498db;"></i><h4 id="modalEfficiency">0%</h4><p>Efficiency Score</p></div>
         </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
-            <button id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
+        <div class="profile-info-section">
+            <h5 class="mb-3"><i class="fas fa-user-circle me-2"></i>Personal Information</h5>
+            <div class="info-row"><span class="info-label">Full Name</span><span class="info-value" id="infoName">-</span></div>
+            <div class="info-row"><span class="info-label">Email Address</span><span class="info-value" id="infoEmail">-</span></div>
+            <div class="info-row"><span class="info-label">Phone Number</span><span class="info-value" id="infoPhone">Not set</span></div>
+            <div class="info-row"><span class="info-label">Account Status</span><span class="info-value text-success">Active</span></div>
+            <div class="info-row"><span class="info-label">Average Daily Usage</span><span class="info-value" id="infoAvgDaily">0 kWh</span></div>
+            <div class="info-row"><span class="info-label">Most Used Appliance</span><span class="info-value" id="infoTopAppliance">-</span></div>
+            <div class="info-row"><span class="info-label">Peak Usage Hour</span><span class="info-value" id="infoPeakHour">-</span></div>
         </div>
     </div>
-    <div id="resultSection" class="result-section"></div>
 </div>
-<script src="js/auth.js"></script>
+
+<div class="container">
+    <!-- Main Content -->
+    <div id="mainContent" class="main-content">
+        <div class="chat-container">
+            <div class="chat-header">
+                <i class="fas fa-robot"></i>
+                <div>
+                    <h3>AI Energy Assistant</h3>
+                    <p>Ask me anything about energy savings, recommendations, or alerts!</p>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                    <div class="message-content">
+                        👋 Hi! I'm your AI Energy Assistant. I can help you with:<br><br>
+                        • 💡 Energy saving recommendations<br>
+                        • ⚠️ Custom alerts based on your usage<br>
+                        • 💰 Cost saving calculations<br>
+                        • 📊 Personalized energy analysis<br><br>
+                        <strong>Try asking:</strong> "How can I save money on my AC?" or "Give me energy saving tips"
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                <button id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
+            </div>
+        </div>
+        <div id="resultSection" class="result-section"></div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="settings-panel">
+        <button class="back-to-home" id="backToHomeBtn"><i class="fas fa-arrow-left"></i> Back to AI Assistant</button>
+        <h2 class="mb-4"><i class="fas fa-cog me-2"></i>Settings</h2>
+        <div id="alertMsg" class="alert alert-custom" style="display: none;"></div>
+        <form id="settingsForm">
+            <div class="mb-3"><label class="form-label"><i class="fas fa-user me-2"></i>Full Name</label><input type="text" class="form-control" id="settingsName" placeholder="Enter your name"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-envelope me-2"></i>Email Address</label><input type="email" class="form-control" id="settingsEmail" placeholder="Enter your email"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-phone me-2"></i>Phone Number</label><input type="tel" class="form-control" id="settingsPhone" placeholder="Enter phone number"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-lock me-2"></i>New Password</label><input type="password" class="form-control" id="settingsPassword" placeholder="Leave blank to keep unchanged"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-rupee-sign me-2"></i>Electricity Rate (₹/unit)</label><input type="number" step="0.5" class="form-control" id="settingsRate" placeholder="e.g., 7"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-thermometer-half me-2"></i>Preferred Temperature (°C)</label><input type="number" class="form-control" id="settingsTemp" placeholder="e.g., 24"></div>
+            <div class="mb-4"><label class="form-label"><i class="fas fa-bell me-2"></i>Alert Preferences</label><select class="form-select" id="alertPreference"><option value="all">All Alerts</option><option value="high">High Usage Only</option><option value="peak">Peak Hour Only</option><option value="none">No Alerts</option></select></div>
+            <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Save Settings</button>
+        </form>
+    </div>
+</div>
+
 <script>
-    const API_URL = 'http://localhost:5000/api';
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000/api' : '/api';
+    
     let conversationState = {
         step: 'greeting', waitingForCorrection: false, lastQuestion: null,
         collectedData: { appliances: [], occupancy: null, usageHours: null, acTemp: null, rooms: [], hasAC: false, hasHeater: false, hasWashingMachine: false, hasFridge: false }
@@ -209,29 +345,157 @@
     const occupancyKeywords = { 'occupied': ['occupied', 'occupied most', 'always home', 'present', 'full time'], 'vacant': ['vacant', 'work hours', 'office hours', 'empty', 'away'], 'mixed': ['mixed', 'sometimes', 'partial', 'varies'] };
     const roomKeywords = { 'living': ['living', 'living room', 'lounge', 'hall'], 'bedroom': ['bedroom', 'bed room', 'master bedroom', 'bed'], 'kitchen': ['kitchen', 'kitchen room'], 'hall': ['hall', 'hall room', 'dining hall'] };
 
-    function getUser() { return authManager.getCurrentUser(); }
-
+    // Using authManager (same as other pages)
     function updateUserUI() {
-        const user = getUser();
-        if (!user) { document.getElementById('userNameDisplay').textContent = 'Guest User'; document.getElementById('avatarInitial').textContent = 'GU'; return; }
-        document.getElementById('userNameDisplay').textContent = user.name;
-        const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        document.getElementById('avatarInitial').textContent = initials;
-    }
-
-    function logout() { if (confirm('Are you sure you want to logout?')) { authManager.logout(); } }
-
-    async function callMLPrediction(data) {
         try {
-            const response = await fetch(`${API_URL}/predict`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            return await response.json();
-        } catch (error) { console.error('API Error:', error); return null; }
+            const user = authManager.getCurrentUser();
+            if (!user || !user.name) { 
+                document.getElementById('userNameDisplay').textContent = 'Guest User'; 
+                document.getElementById('avatarInitial').textContent = 'GU'; 
+                return; 
+            }
+            document.getElementById('userNameDisplay').textContent = user.name;
+            const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('avatarInitial').textContent = initials;
+        } catch (e) { console.error("UI Error:", e); }
     }
 
+    function toggleDropdown() { const d = document.getElementById('userDropdown'); d.style.display = d.style.display === 'block' ? 'none' : 'block'; }
+    function closeDropdown() { document.getElementById('userDropdown').style.display = 'none'; }
+    
+    function logout() { 
+        closeDropdown();
+        if (confirm('Are you sure you want to logout?')) { 
+            authManager.logout(); 
+        } 
+    }
+    
+    function showSettingsPanel() { 
+        closeDropdown(); 
+        document.getElementById('mainContent').classList.add('hide'); 
+        document.getElementById('settingsPanel').classList.add('show'); 
+        loadSettings(); 
+    }
+    
+    function hideSettingsPanel() { 
+        document.getElementById('mainContent').classList.remove('hide'); 
+        document.getElementById('settingsPanel').classList.remove('show'); 
+    }
+    
+    function loadSettings() {
+        const user = authManager.getCurrentUser();
+        if (user) { 
+            document.getElementById('settingsName').value = user.name || ''; 
+            document.getElementById('settingsEmail').value = user.email || ''; 
+            document.getElementById('settingsPhone').value = user.phone || ''; 
+        }
+        const saved = localStorage.getItem('userSettings');
+        if (saved) { 
+            const s = JSON.parse(saved); 
+            document.getElementById('settingsRate').value = s.rate || 7; 
+            document.getElementById('settingsTemp').value = s.temp || 24; 
+            document.getElementById('alertPreference').value = s.alerts || 'all'; 
+        }
+        else { 
+            document.getElementById('settingsRate').value = 7; 
+            document.getElementById('settingsTemp').value = 24; 
+        }
+    }
+    
+    function showAlert(msg, type) { 
+        const a = document.getElementById('alertMsg'); 
+        a.textContent = msg; 
+        a.className = `alert alert-${type} alert-custom`; 
+        a.style.display = 'block'; 
+        setTimeout(() => a.style.display = 'none', 3000); 
+    }
+    
+    document.getElementById('settingsForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = authManager.getCurrentUser();
+        if (!user) { showAlert('Please login to save settings', 'danger'); return; }
+        const settings = { 
+            name: document.getElementById('settingsName').value, 
+            email: document.getElementById('settingsEmail').value, 
+            phone: document.getElementById('settingsPhone').value, 
+            rate: parseFloat(document.getElementById('settingsRate').value), 
+            temp: parseFloat(document.getElementById('settingsTemp').value), 
+            alerts: document.getElementById('alertPreference').value 
+        };
+        const updatedUser = { ...user, name: settings.name, email: settings.email, phone: settings.phone };
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+        updateUserUI();
+        showAlert('Settings saved successfully!', 'success');
+    });
+    
+    function openProfileModal() {
+        closeDropdown();
+        const user = authManager.getCurrentUser();
+        if (user) {
+            document.getElementById('modalName').textContent = user.name || 'User';
+            document.getElementById('modalEmail').textContent = user.email || 'user@example.com';
+            document.getElementById('infoName').textContent = user.name || 'User';
+            document.getElementById('infoEmail').textContent = user.email || 'user@example.com';
+            document.getElementById('infoPhone').textContent = user.phone || 'Not set';
+            document.getElementById('memberSince').textContent = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'January 2025';
+            const initials = (user.name || 'U').split(' ').map(n => n[0]).join('').substring(0, 1).toUpperCase();
+            document.getElementById('modalAvatar').textContent = initials;
+        } else {
+            document.getElementById('modalName').textContent = 'Guest User';
+            document.getElementById('modalEmail').textContent = 'guest@example.com';
+            document.getElementById('modalAvatar').textContent = 'G';
+            document.getElementById('infoName').textContent = 'Guest User';
+            document.getElementById('infoEmail').textContent = 'guest@example.com';
+        }
+        const lastAnalysis = localStorage.getItem('lastAnalysis');
+        if (lastAnalysis) {
+            try {
+                const data = JSON.parse(lastAnalysis);
+                document.getElementById('modalTotalEnergy').textContent = (data.total_energy || 0).toFixed(2);
+                const savings = ((data.total_cost || 0) * 0.2).toFixed(2);
+                document.getElementById('modalTotalSavings').textContent = `₹${savings}`;
+                document.getElementById('modalCarbonSaved').textContent = ((data.total_carbon || 0) * 0.2).toFixed(2);
+                document.getElementById('modalEfficiency').textContent = `${data.efficiency_score || 80}%`;
+                document.getElementById('infoAvgDaily').textContent = ((data.total_energy || 0) / 7).toFixed(2) + ' kWh';
+            } catch(e) {}
+        }
+        document.getElementById('profileModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeProfileModal() { 
+        document.getElementById('profileModal').style.display = 'none'; 
+        document.body.style.overflow = 'auto'; 
+    }
+
+    // Navigation to Home - simple redirect without preventDefault
+    function goToHome() {
+        window.location.href = 'home.html';
+    }
+
+    // Rest of the AI Assistant functions remain exactly the same...
     function fuzzyMatch(input, keywords) { input = input.toLowerCase(); for (let [key, patterns] of Object.entries(keywords)) { for (let pattern of patterns) { if (input.includes(pattern)) return key; } } return null; }
     function extractNumber(input) { const numbers = input.match(/\d+/g); return numbers && numbers.length > 0 ? parseInt(numbers[0]) : null; }
     function getSuggestions() { return { 'ask_appliances': ['AC and Fan', 'Fridge and Washing Machine', 'AC, Fan, Light'], 'ask_occupancy': ['Occupied most of the day', 'Vacant during work hours', 'Mixed'], 'ask_usage_hours': ['4 hours', '6 hours', '8 hours'], 'ask_temperature': ['24°C', '22°C', '26°C'], 'ask_rooms': ['Living Room and Bedroom', 'Kitchen and Hall', 'All rooms'] }[conversationState.step] || []; }
-    function addSuggestionButtons() { const suggestions = getSuggestions(); if (!suggestions.length) return; const lastMsg = document.querySelector('.message.ai:last-child .message-content'); if (lastMsg && !lastMsg.querySelector('.suggestion-buttons')) { const container = document.createElement('div'); container.className = 'suggestion-buttons'; suggestions.forEach(s => { const btn = document.createElement('button'); btn.className = 'suggestion-btn'; btn.textContent = s; btn.onclick = () => { document.getElementById('chatInput').value = s; sendMessage(); }; container.appendChild(btn); }); lastMsg.appendChild(container); } }
+    
+    function addSuggestionButtons() { 
+        const suggestions = getSuggestions(); 
+        if (!suggestions.length) return; 
+        const lastMsg = document.querySelector('.message.ai:last-child .message-content'); 
+        if (lastMsg && !lastMsg.querySelector('.suggestion-buttons')) { 
+            const container = document.createElement('div'); 
+            container.className = 'suggestion-buttons'; 
+            suggestions.forEach(s => { 
+                const btn = document.createElement('button'); 
+                btn.className = 'suggestion-btn'; 
+                btn.textContent = s; 
+                btn.onclick = () => { document.getElementById('chatInput').value = s; sendMessage(); }; 
+                container.appendChild(btn); 
+            }); 
+            lastMsg.appendChild(container); 
+        } 
+    }
 
     function addMessage(sender, text, showSuggestions = false) {
         const div = document.createElement('div'); div.className = `message ${sender}`;
@@ -242,7 +506,15 @@
         if (showSuggestions && sender === 'ai') setTimeout(() => addSuggestionButtons(), 100);
     }
     
-    function showTyping() { const div = document.createElement('div'); div.className = 'message ai'; div.id = 'typingIndicator'; div.innerHTML = `<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="typing-indicator"><span></span><span></span><span></span></div>`; document.getElementById('chatMessages').appendChild(div); setTimeout(() => { const ind = document.getElementById('typingIndicator'); if (ind) ind.querySelector('.typing-indicator').style.display = 'flex'; }, 10); }
+    function showTyping() { 
+        const div = document.createElement('div'); 
+        div.className = 'message ai'; 
+        div.id = 'typingIndicator'; 
+        div.innerHTML = `<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="typing-indicator"><span></span><span></span><span></span></div>`; 
+        document.getElementById('chatMessages').appendChild(div); 
+        setTimeout(() => { const ind = document.getElementById('typingIndicator'); if (ind) ind.querySelector('.typing-indicator').style.display = 'flex'; }, 10); 
+    }
+    
     function hideTyping() { const ind = document.getElementById('typingIndicator'); if (ind) ind.remove(); }
 
     async function sendMessage() {
@@ -264,12 +536,21 @@
         switch(conversationState.step) {
             case 'greeting':
                 addMessage('ai', "Great! Let me ask you a few questions.\n\n🏠 What appliances do you commonly use? (AC, Fan, Light, Fridge, Washing Machine, TV, Heater)", true);
-                conversationState.step = 'ask_appliances'; 
-                break;
+                conversationState.step = 'ask_appliances'; break;
             case 'ask_appliances':
-                const detected = []; for (let [app, keys] of Object.entries(applianceKeywords)) { for (let k of keys) { if (lower.includes(k)) { detected.push(app); break; } } }
-                if (!detected.length) { addMessage('ai', "❓ I didn't catch that. Please tell me which appliances you use.\n\nCommon: AC, Fan, Light, Fridge, Washing Machine, TV, Heater", true); conversationState.waitingForCorrection = true; }
-                else {
+                const detected = []; 
+                for (let [app, keys] of Object.entries(applianceKeywords)) { 
+                    for (let k of keys) { 
+                        if (lower.includes(k)) { 
+                            detected.push(app); 
+                            break; 
+                        } 
+                    } 
+                }
+                if (!detected.length) { 
+                    addMessage('ai', "❓ I didn't catch that. Please tell me which appliances you use.\n\nCommon: AC, Fan, Light, Fridge, Washing Machine, TV, Heater", true); 
+                    conversationState.waitingForCorrection = true; 
+                } else {
                     conversationState.collectedData.appliances = detected;
                     conversationState.collectedData.hasAC = detected.includes('ac');
                     conversationState.collectedData.hasHeater = detected.includes('heater');
@@ -277,44 +558,55 @@
                     conversationState.collectedData.hasFridge = detected.includes('fridge');
                     addMessage('ai', `✅ Got it! You use: ${detected.map(a => a.charAt(0).toUpperCase() + a.slice(1)).join(', ')}.\n\n👥 What's your occupancy status?\n• Occupied most of the day\n• Vacant during work hours\n• Mixed`, true);
                     conversationState.step = 'ask_occupancy';
-                } 
-                break;
+                } break;
             case 'ask_occupancy':
                 let occ = fuzzyMatch(lower, occupancyKeywords);
-                if (!occ) { addMessage('ai', "❓ Please tell me: Occupied, Vacant during work hours, or Mixed", true); conversationState.waitingForCorrection = true; }
-                else {
+                if (!occ) { 
+                    addMessage('ai', "❓ Please tell me: Occupied, Vacant during work hours, or Mixed", true); 
+                    conversationState.waitingForCorrection = true; 
+                } else {
                     conversationState.collectedData.occupancy = occ === 'occupied' ? 'Occupied most of the day' : occ === 'vacant' ? 'Vacant during work hours' : 'Mixed';
                     addMessage('ai', `📊 Understood. ${conversationState.collectedData.occupancy}.\n\n⏰ How many hours/day do you use high-power appliances (AC, Heater, Washing Machine)?`, true);
                     conversationState.step = 'ask_usage_hours';
-                } 
-                break;
+                } break;
             case 'ask_usage_hours':
                 let hrs = extractNumber(lower);
-                if (!hrs || hrs < 1 || hrs > 24) { addMessage('ai', "❓ Please enter a valid number between 1-24 hours.", true); conversationState.waitingForCorrection = true; }
-                else {
+                if (!hrs || hrs < 1 || hrs > 24) { 
+                    addMessage('ai', "❓ Please enter a valid number between 1-24 hours.", true); 
+                    conversationState.waitingForCorrection = true; 
+                } else {
                     conversationState.collectedData.usageHours = hrs;
                     addMessage('ai', `⏱️ ${hrs} hours recorded.\n\n🌡️ What temperature do you set your AC/Heater to? (°C)`, true);
                     conversationState.step = 'ask_temperature';
-                } 
-                break;
+                } break;
             case 'ask_temperature':
                 let tmp = extractNumber(lower);
-                if (!tmp || tmp < 16 || tmp > 35) { addMessage('ai', "❓ Please enter a valid temperature between 16-35°C.", true); conversationState.waitingForCorrection = true; }
-                else {
+                if (!tmp || tmp < 16 || tmp > 35) { 
+                    addMessage('ai', "❓ Please enter a valid temperature between 16-35°C.", true); 
+                    conversationState.waitingForCorrection = true; 
+                } else {
                     conversationState.collectedData.acTemp = tmp;
                     addMessage('ai', `🌡️ Temperature set to ${tmp}°C.\n\n🚪 Which rooms do you use most? (Living Room, Bedroom, Kitchen, Hall)`, true);
                     conversationState.step = 'ask_rooms';
-                } 
-                break;
+                } break;
             case 'ask_rooms':
-                const rooms = []; for (let [rm, keys] of Object.entries(roomKeywords)) { for (let k of keys) { if (lower.includes(k)) { rooms.push(rm.charAt(0).toUpperCase() + rm.slice(1)); break; } } }
-                if (!rooms.length) { addMessage('ai', "❓ Please tell me which rooms you use.", true); conversationState.waitingForCorrection = true; }
-                else {
+                const rooms = []; 
+                for (let [rm, keys] of Object.entries(roomKeywords)) { 
+                    for (let k of keys) { 
+                        if (lower.includes(k)) { 
+                            rooms.push(rm.charAt(0).toUpperCase() + rm.slice(1)); 
+                            break; 
+                        } 
+                    } 
+                }
+                if (!rooms.length) { 
+                    addMessage('ai', "❓ Please tell me which rooms you use.", true); 
+                    conversationState.waitingForCorrection = true; 
+                } else {
                     conversationState.collectedData.rooms = rooms;
                     addMessage('ai', `✅ Perfect! You use ${rooms.join(', ')}.\n\n📊 Analyzing your energy consumption with ML model...`);
                     setTimeout(() => generatePrediction(), 1500);
-                } 
-                break;
+                } break;
             default: handleGeneralQuery(response);
         }
     }
@@ -331,46 +623,44 @@
             voltage: 230,
             current: (data.hasAC ? 1500 : 500) / 230,
             day_of_week: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()],
-            season: getSeason(new Date().getMonth()),
+            season: (() => { const m = new Date().getMonth(); if (m >= 2 && m <= 4) return 'Spring'; if (m >= 5 && m <= 7) return 'Summer'; if (m >= 8 && m <= 10) return 'Autumn'; return 'Winter'; })(),
             holiday: 'No',
             device_status: 'ON',
             room_location: data.rooms[0] || 'Living Room',
             appliance_category: data.hasAC ? 'High' : data.hasWashingMachine ? 'Medium' : 'Low'
         };
         
-        const result = await callMLPrediction(inputData);
         let totalEnergy, totalCost, totalCarbon;
-        if (result && result.success) { totalEnergy = result.energy; totalCost = result.cost; totalCarbon = result.carbon; }
-        else {
+        try {
+            const response = await fetch(`${API_URL}/predict`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(inputData) 
+            });
+            const result = await response.json();
+            if (result && result.success) { 
+                totalEnergy = result.energy; 
+                totalCost = result.cost; 
+                totalCarbon = result.carbon; 
+            } else throw new Error();
+        } catch (error) {
+            console.error('API Error:', error);
             totalEnergy = (data.hasAC ? 3.5 : data.hasWashingMachine ? 1.5 : 0.5) * ((data.usageHours || 4) / 4);
-            totalCost = totalEnergy * 7; totalCarbon = totalEnergy * 0.82;
+            totalCost = totalEnergy * 7; 
+            totalCarbon = totalEnergy * 0.82;
         }
         
         const isPeakHour = new Date().getHours() >= 18 && new Date().getHours() <= 22;
-        
-        const alerts = generateDynamicAlerts(totalEnergy, isPeakHour, data.acTemp, data.occupancy, data.appliances);
-        const recommendations = generateDynamicRecommendations(totalEnergy, isPeakHour, data.acTemp, data.occupancy, data.appliances);
-
-        lastGeneratedData = { totalEnergy, totalCost, totalCarbon, isPeakHour, data, alerts, recommendations };
-        
-        displayResult(totalEnergy, totalCost, totalCarbon, isPeakHour, data, alerts, recommendations);
-    }
-    
-    function generateDynamicAlerts(energy, isPeakHour, temp, occupancy, appliances) {
         const alerts = [];
         if (isPeakHour) alerts.push('Peak hour (6-10 PM) - Higher rates apply');
-        if (energy > 8) alerts.push('Very high energy consumption detected!');
-        return alerts;
-    }
-    
-    function generateDynamicRecommendations(energy, isPeakHour, temp, occupancy, appliances) {
-        const recs = [];
-        if (appliances.includes('ac')) recs.push('Set AC to 24°C to save energy');
-        recs.push('Unplug electronics when not in use');
-        return recs;
-    }
+        if (totalEnergy > 8) alerts.push('Very high energy consumption detected!');
+        const recommendations = [];
+        if (data.appliances.includes('ac')) recommendations.push('Set AC to 24°C to save energy');
+        recommendations.push('Unplug electronics when not in use');
 
-    function getSeason(month) { if (month >= 2 && month <= 4) return 'Spring'; if (month >= 5 && month <= 7) return 'Summer'; if (month >= 8 && month <= 10) return 'Autumn'; return 'Winter'; }
+        lastGeneratedData = { totalEnergy, totalCost, totalCarbon, isPeakHour, data, alerts, recommendations };
+        displayResult(totalEnergy, totalCost, totalCarbon, isPeakHour, data, alerts, recommendations);
+    }
 
     function displayResult(energy, cost, carbon, isPeakHour, data, alerts, recommendations) {
         const resultHtml = `<h3 style="font-size:24px;font-weight:700;margin-bottom:25px;border-bottom:3px solid #2ecc71;"><i class="fas fa-robot me-2"></i>AI Personalized Report</h3>
@@ -392,7 +682,7 @@
     function downloadAIReport() {
         if (!lastGeneratedData) { alert("No data available"); return; }
         const d = lastGeneratedData;
-        const user = getUser();
+        const user = authManager.getCurrentUser();
         const userName = user ? user.name : 'Guest User';
         const report = `SMART ENERGY MONITOR - AI REPORT\nDate: ${new Date().toLocaleString()}\nUser: ${userName}\n\nEnergy: ${d.totalEnergy.toFixed(2)} kWh\nCost: ₹${d.totalCost.toFixed(2)}\nCarbon: ${d.totalCarbon.toFixed(2)} kg CO₂\n\nAlerts:\n${d.alerts.map(a => '- ' + a).join('\n')}\n\nRecommendations:\n${d.recommendations.map(r => '- ' + r).join('\n')}`;
         const blob = new Blob([report], { type: 'text/plain' });
@@ -405,10 +695,8 @@
     function saveAIReport() {
         if (!lastGeneratedData) { alert("No data available"); return; }
         const d = lastGeneratedData;
-
         const user = authManager.getCurrentUser();
         const userId = user ? (user.id || user.name) : 'guest';
-
         const defaultPower = { 'ac': 1500, 'fan': 70, 'light': 40, 'fridge': 200, 'washing machine': 500, 'tv': 100, 'heater': 2000 };
         const usageHours = d.data.usageHours || 4;
         const breakdownLabels = [];
@@ -419,10 +707,8 @@
             breakdownLabels.push(app.charAt(0).toUpperCase() + app.slice(1));
             breakdownValues.push(parseFloat(energy.toFixed(2)));
         });
-
         let reports = JSON.parse(localStorage.getItem(`aiReports_${userId}`) || '[]');
-
-        const report = {
+        reports.push({
             id: Date.now(),
             timestamp: new Date().toISOString(),
             mode: 'ai',
@@ -432,19 +718,9 @@
             efficiencyScore: 80,
             alerts: d.alerts,
             recommendations: d.recommendations,
-            chartData: {
-                type: 'ai',
-                applianceBreakdown: {
-                    labels: breakdownLabels,
-                    values: breakdownValues
-                }
-            }
-        };
-
-        reports.push(report);
+            chartData: { type: 'ai', applianceBreakdown: { labels: breakdownLabels, values: breakdownValues } }
+        });
         localStorage.setItem(`aiReports_${userId}`, JSON.stringify(reports));
-
-        // ✅ STEP: Save unified latestPrediction for dashboard
         localStorage.setItem('latestPrediction', JSON.stringify({
             mode: 'ai',
             totalEnergy: parseFloat(d.totalEnergy.toFixed(2)),
@@ -455,7 +731,6 @@
             recommendations: d.recommendations,
             timestamp: new Date().toISOString()
         }));
-
         alert('✅ AI Report saved to Reports page!');
     }
     
@@ -469,7 +744,26 @@
     function handleGeneralQuery(msg) { addMessage('ai', "I can help with energy recommendations, alerts, or cost savings. What would you like to know?"); }
     function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
 
-    document.addEventListener('DOMContentLoaded', function () { updateUserUI(); });
+    document.addEventListener('DOMContentLoaded', function() {
+        updateUserUI();
+        document.getElementById('userInfo').addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(); });
+        document.getElementById('dropdownProfile').addEventListener('click', openProfileModal);
+        document.getElementById('dropdownSettings').addEventListener('click', () => { closeDropdown(); showSettingsPanel(); });
+        document.getElementById('dropdownLogout').addEventListener('click', logout);
+        document.getElementById('backToHomeBtn').addEventListener('click', hideSettingsPanel);
+        
+        // FIXED: Remove preventDefault to allow normal navigation to home
+        document.getElementById('logoLink').addEventListener('click', function(e) {
+            // Let the browser navigate normally - the href="home.html" will work naturally
+        });
+        
+        document.getElementById('homeNavLink').addEventListener('click', function(e) {
+            // Let the browser navigate normally
+        });
+        
+        document.addEventListener('click', (e) => { const d = document.getElementById('userDropdown'); const ui = document.getElementById('userInfo'); if (d.style.display === 'block' && !ui.contains(e.target) && !d.contains(e.target)) d.style.display = 'none'; });
+        window.onclick = function(e) { const m = document.getElementById('profileModal'); if (e.target == m) closeProfileModal(); };
+    });
 </script>
 </body>
 </html>

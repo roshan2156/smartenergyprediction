@@ -39,7 +39,9 @@
             width: 40px; height: 40px;
             background: linear-gradient(135deg, #2ecc71, #3498db);
             border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             animation: pulse 2s infinite;
         }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
@@ -63,9 +65,24 @@
         }
         .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
         .nav-links a:hover, .nav-links a.active { color: #2ecc71; }
+        
+        /* User Menu Dropdown */
+        .user-menu-container {
+            position: relative;
+        }
         .user-info {
-            display: flex; align-items: center; gap: 20px;
-            background: #f8f9fa; padding: 8px 20px; border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .user-info:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
         }
         .user-avatar {
             width: 40px; height: 40px;
@@ -79,6 +96,55 @@
             border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 500;
         }
         .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        
+        /* Dropdown Menu */
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            overflow: hidden;
+            z-index: 1100;
+            animation: dropdownFade 0.2s ease;
+        }
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+        .dropdown-item i {
+            width: 20px;
+            color: #2ecc71;
+        }
+        .dropdown-item:hover {
+            background: #f8f9fa;
+            color: #2ecc71;
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 5px 0;
+        }
+        
         .container { max-width: 1400px; margin: 100px auto 50px; padding: 20px; }
         .mode-cards {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -214,12 +280,159 @@
             max-width: 420px; margin: 0 auto;
         }
 
+        /* Settings Panel */
+        .settings-panel {
+            display: none;
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .settings-panel.show {
+            display: block;
+        }
+        .back-to-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 500;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .back-to-home:hover {
+            transform: translateX(-5px);
+            opacity: 0.9;
+        }
+        .form-label { font-weight: 600; color: #2c3e50; margin-bottom: 8px; }
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #2ecc71;
+            box-shadow: 0 0 0 3px rgba(46,204,113,0.1);
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            color: white;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46,204,113,0.3); }
+        .alert-custom { border-radius: 12px; margin-bottom: 20px; }
+
+        /* Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .profile-modal-content {
+            background: white;
+            margin: 60px auto;
+            max-width: 950px;
+            width: 90%;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideDown 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .profile-modal-header {
+            background: linear-gradient(135deg, #2ecc71, #3498db);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 48px;
+            font-weight: bold;
+            color: #2ecc71;
+        }
+        .close-modal-profile {
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: -10px;
+        }
+        .close-modal-profile:hover { opacity: 0.8; }
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 25px;
+        }
+        .profile-stat-item {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+        .profile-stat-item i { margin-bottom: 10px; }
+        .profile-stat-item h4 { font-size: 28px; font-weight: 700; color: #2c3e50; margin: 10px 0 5px; }
+        .profile-info-section {
+            padding: 0 25px 25px 25px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-label { font-weight: 600; color: #7f8c8d; }
+        .info-value { color: #2c3e50; font-weight: 500; }
+
+        .main-content.hide {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .nav-container { flex-direction: column; gap: 15px; padding: 15px 20px; }
             .container { margin-top: 160px; }
             .filter-bar { flex-direction: column; align-items: stretch; }
             .modal-content { width: 96%; max-height: 90vh; }
             .charts-grid-2 { grid-template-columns: 1fr; }
+            .user-info { padding: 5px 15px; }
+            .user-name { display: none; }
         }
     </style>
 </head>
@@ -227,7 +440,7 @@
 
 <header class="header">
     <div class="nav-container">
-        <a href="home.html" class="logo">
+        <a href="home.html" class="logo" id="logoLink">
             <div class="logo-icon"><i class="fas fa-bolt"></i></div>
             <div class="logo-text">
                 <h2>Smart Energy System</h2>
@@ -235,59 +448,116 @@
             </div>
         </a>
         <ul class="nav-links">
-            <li><a href="home.html">Home</a></li>
+            <li><a href="home.html" id="homeNavLink">Home</a></li>
             <li><a href="dashboard.html">Dashboard</a></li>
             <li><a href="reports.html" class="active">Reports</a></li>
             <li><a href="history.html">History</a></li>
         </ul>
-        <div class="user-info" id="userInfo">
-            <div class="user-avatar" id="userAvatar"><span id="avatarInitial">JD</span></div>
-            <span class="user-name" id="userNameDisplay">Loading...</span>
-            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <div class="user-menu-container">
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar"><span id="avatarInitial">JD</span></div>
+                <span class="user-name" id="userNameDisplay">Loading...</span>
+                <button class="logout-btn" onclick="event.stopPropagation(); logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div class="user-dropdown" id="userDropdown">
+                <button class="dropdown-item" id="dropdownProfile"><i class="fas fa-user-circle"></i> My Profile</button>
+                <button class="dropdown-item" id="dropdownSettings"><i class="fas fa-cog"></i> Settings</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="dropdownLogout" style="color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
         </div>
     </div>
 </header>
 
-<div class="container">
-    <div class="mode-cards">
-        <div class="mode-card" data-mode="csv" onclick="selectMode('csv')">
-            <div class="mode-icon"><i class="fas fa-file-csv"></i></div>
-            <h3>CSV Upload Reports</h3>
-            <p>Full analysis reports from CSV data uploads</p>
-            <span class="report-count" id="csvCount">0</span>
+<!-- Profile Modal -->
+<div id="profileModal" class="profile-modal">
+    <div class="profile-modal-content">
+        <div class="profile-modal-header">
+            <span class="close-modal-profile" onclick="closeProfileModal()">&times;</span>
+            <div class="profile-avatar-large" id="modalAvatar">U</div>
+            <h2 id="modalName">User Name</h2>
+            <p id="modalEmail">user@example.com</p>
+            <p><i class="fas fa-calendar-alt me-2"></i>Member since: <span id="memberSince">Loading...</span></p>
         </div>
-        <div class="mode-card" data-mode="manual" onclick="selectMode('manual')">
-            <div class="mode-icon"><i class="fas fa-sliders-h"></i></div>
-            <h3>Manual Input Reports</h3>
-            <p>Instant and forecast prediction reports</p>
-            <span class="report-count" id="manualCount">0</span>
+        <div class="profile-stats-grid">
+            <div class="profile-stat-item"><i class="fas fa-bolt fa-2x" style="color: #2ecc71;"></i><h4 id="modalTotalEnergy">0</h4><p>Total Energy (kWh)</p></div>
+            <div class="profile-stat-item"><i class="fas fa-rupee-sign fa-2x" style="color: #f39c12;"></i><h4 id="modalTotalSavings">₹0</h4><p>Est. Savings</p></div>
+            <div class="profile-stat-item"><i class="fas fa-leaf fa-2x" style="color: #27ae60;"></i><h4 id="modalCarbonSaved">0</h4><p>Carbon Saved (kg)</p></div>
+            <div class="profile-stat-item"><i class="fas fa-chart-line fa-2x" style="color: #3498db;"></i><h4 id="modalEfficiency">0%</h4><p>Efficiency Score</p></div>
         </div>
-        <div class="mode-card" data-mode="ai" onclick="selectMode('ai')">
-            <div class="mode-icon"><i class="fas fa-robot"></i></div>
-            <h3>AI Assistant Reports</h3>
-            <p>Personalized AI conversation reports</p>
-            <span class="report-count" id="aiCount">0</span>
+        <div class="profile-info-section">
+            <h5 class="mb-3"><i class="fas fa-user-circle me-2"></i>Personal Information</h5>
+            <div class="info-row"><span class="info-label">Full Name</span><span class="info-value" id="infoName">-</span></div>
+            <div class="info-row"><span class="info-label">Email Address</span><span class="info-value" id="infoEmail">-</span></div>
+            <div class="info-row"><span class="info-label">Phone Number</span><span class="info-value" id="infoPhone">Not set</span></div>
+            <div class="info-row"><span class="info-label">Account Status</span><span class="info-value text-success">Active</span></div>
+            <div class="info-row"><span class="info-label">Average Daily Usage</span><span class="info-value" id="infoAvgDaily">0 kWh</span></div>
+            <div class="info-row"><span class="info-label">Most Used Appliance</span><span class="info-value" id="infoTopAppliance">-</span></div>
+            <div class="info-row"><span class="info-label">Peak Usage Hour</span><span class="info-value" id="infoPeakHour">-</span></div>
         </div>
-    </div>
-
-    <div class="filter-bar">
-        <div class="filter-group">
-            <label><i class="fas fa-calendar-alt"></i> Date Range:</label>
-            <input type="date" id="startDate">
-            <span>to</span>
-            <input type="date" id="endDate">
-        </div>
-        <button class="btn-filter" onclick="filterReports()"><i class="fas fa-search"></i> Filter Reports</button>
-        <button class="btn-filter" onclick="clearFilter()"><i class="fas fa-undo"></i> Clear Filter</button>
-    </div>
-
-    <div class="reports-list">
-        <h4 class="mb-3" id="modeTitle">CSV Upload Reports</h4>
-        <div id="reportsContainer"></div>
     </div>
 </div>
 
-<!-- Modal -->
+<div class="container">
+    <!-- Main Content -->
+    <div id="mainContent" class="main-content">
+        <div class="mode-cards">
+            <div class="mode-card" data-mode="csv" onclick="selectMode('csv')">
+                <div class="mode-icon"><i class="fas fa-file-csv"></i></div>
+                <h3>CSV Upload Reports</h3>
+                <p>Full analysis reports from CSV data uploads</p>
+                <span class="report-count" id="csvCount">0</span>
+            </div>
+            <div class="mode-card" data-mode="manual" onclick="selectMode('manual')">
+                <div class="mode-icon"><i class="fas fa-sliders-h"></i></div>
+                <h3>Manual Input Reports</h3>
+                <p>Instant and forecast prediction reports</p>
+                <span class="report-count" id="manualCount">0</span>
+            </div>
+            <div class="mode-card" data-mode="ai" onclick="selectMode('ai')">
+                <div class="mode-icon"><i class="fas fa-robot"></i></div>
+                <h3>AI Assistant Reports</h3>
+                <p>Personalized AI conversation reports</p>
+                <span class="report-count" id="aiCount">0</span>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label><i class="fas fa-calendar-alt"></i> Date Range:</label>
+                <input type="date" id="startDate">
+                <span>to</span>
+                <input type="date" id="endDate">
+            </div>
+            <button class="btn-filter" onclick="filterReports()"><i class="fas fa-search"></i> Filter Reports</button>
+            <button class="btn-filter" onclick="clearFilter()"><i class="fas fa-undo"></i> Clear Filter</button>
+        </div>
+
+        <div class="reports-list">
+            <h4 class="mb-3" id="modeTitle">CSV Upload Reports</h4>
+            <div id="reportsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="settings-panel">
+        <button class="back-to-home" id="backToHomeBtn"><i class="fas fa-arrow-left"></i> Back to Reports</button>
+        <h2 class="mb-4"><i class="fas fa-cog me-2"></i>Settings</h2>
+        <div id="alertMsg" class="alert alert-custom" style="display: none;"></div>
+        <form id="settingsForm">
+            <div class="mb-3"><label class="form-label"><i class="fas fa-user me-2"></i>Full Name</label><input type="text" class="form-control" id="settingsName" placeholder="Enter your name"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-envelope me-2"></i>Email Address</label><input type="email" class="form-control" id="settingsEmail" placeholder="Enter your email"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-phone me-2"></i>Phone Number</label><input type="tel" class="form-control" id="settingsPhone" placeholder="Enter phone number"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-lock me-2"></i>New Password</label><input type="password" class="form-control" id="settingsPassword" placeholder="Leave blank to keep unchanged"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-rupee-sign me-2"></i>Electricity Rate (₹/unit)</label><input type="number" step="0.5" class="form-control" id="settingsRate" placeholder="e.g., 7"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-thermometer-half me-2"></i>Preferred Temperature (°C)</label><input type="number" class="form-control" id="settingsTemp" placeholder="e.g., 24"></div>
+            <div class="mb-4"><label class="form-label"><i class="fas fa-bell me-2"></i>Alert Preferences</label><select class="form-select" id="alertPreference"><option value="all">All Alerts</option><option value="high">High Usage Only</option><option value="peak">Peak Hour Only</option><option value="none">No Alerts</option></select></div>
+            <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Save Settings</button>
+        </form>
+    </div>
+</div>
+
+<!-- Report Modal -->
 <div id="reportModal" class="modal" onclick="if(event.target===this) closeModal()">
     <div class="modal-content">
         <div class="modal-header">
@@ -308,29 +578,129 @@
     let currentReportForModal = null;
     let modalCharts = [];
 
-    // --- Authentication Logic ---
+    // --- Authentication Logic using authManager ---
     function updateUserUI() {
-        const user = authManager.getCurrentUser();
-        if (!user) {
-            window.location.href = 'login.html';
-            return;
-        }
-        const name = user.name;
-        document.getElementById('userNameDisplay').textContent = name;
-        const words = name.trim().split(' ');
-        let initials = '';
-        if (words.length === 1) {
-            initials = words[0].substring(0, 2);
-        } else {
-            initials = words[0][0] + words[words.length - 1][0];
-        }
-        document.getElementById('avatarInitial').textContent = initials.toUpperCase();
+        try {
+            const user = authManager.getCurrentUser();
+            if (!user || !user.name) { 
+                document.getElementById('userNameDisplay').textContent = 'Guest User'; 
+                document.getElementById('avatarInitial').textContent = 'GU'; 
+                return; 
+            }
+            document.getElementById('userNameDisplay').textContent = user.name;
+            const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('avatarInitial').textContent = initials;
+        } catch (e) { console.error("UI Error:", e); }
     }
 
-    function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            authManager.logout();
+    function toggleDropdown() { const d = document.getElementById('userDropdown'); d.style.display = d.style.display === 'block' ? 'none' : 'block'; }
+    function closeDropdown() { document.getElementById('userDropdown').style.display = 'none'; }
+    
+    function logout() { 
+        closeDropdown();
+        if (confirm('Are you sure you want to logout?')) { 
+            authManager.logout(); 
+        } 
+    }
+    
+    function showSettingsPanel() { 
+        closeDropdown(); 
+        document.getElementById('mainContent').classList.add('hide'); 
+        document.getElementById('settingsPanel').classList.add('show'); 
+        loadSettings(); 
+    }
+    
+    function hideSettingsPanel() { 
+        document.getElementById('mainContent').classList.remove('hide'); 
+        document.getElementById('settingsPanel').classList.remove('show'); 
+    }
+    
+    function loadSettings() {
+        const user = authManager.getCurrentUser();
+        if (user) { 
+            document.getElementById('settingsName').value = user.name || ''; 
+            document.getElementById('settingsEmail').value = user.email || ''; 
+            document.getElementById('settingsPhone').value = user.phone || ''; 
         }
+        const saved = localStorage.getItem('userSettings');
+        if (saved) { 
+            const s = JSON.parse(saved); 
+            document.getElementById('settingsRate').value = s.rate || 7; 
+            document.getElementById('settingsTemp').value = s.temp || 24; 
+            document.getElementById('alertPreference').value = s.alerts || 'all'; 
+        }
+        else { 
+            document.getElementById('settingsRate').value = 7; 
+            document.getElementById('settingsTemp').value = 24; 
+        }
+    }
+    
+    function showAlert(msg, type) { 
+        const a = document.getElementById('alertMsg'); 
+        a.textContent = msg; 
+        a.className = `alert alert-${type} alert-custom`; 
+        a.style.display = 'block'; 
+        setTimeout(() => a.style.display = 'none', 3000); 
+    }
+    
+    document.getElementById('settingsForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = authManager.getCurrentUser();
+        if (!user) { showAlert('Please login to save settings', 'danger'); return; }
+        const settings = { 
+            name: document.getElementById('settingsName').value, 
+            email: document.getElementById('settingsEmail').value, 
+            phone: document.getElementById('settingsPhone').value, 
+            rate: parseFloat(document.getElementById('settingsRate').value), 
+            temp: parseFloat(document.getElementById('settingsTemp').value), 
+            alerts: document.getElementById('alertPreference').value 
+        };
+        const updatedUser = { ...user, name: settings.name, email: settings.email, phone: settings.phone };
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+        updateUserUI();
+        showAlert('Settings saved successfully!', 'success');
+    });
+    
+    function openProfileModal() {
+        closeDropdown();
+        const user = authManager.getCurrentUser();
+        if (user) {
+            document.getElementById('modalName').textContent = user.name || 'User';
+            document.getElementById('modalEmail').textContent = user.email || 'user@example.com';
+            document.getElementById('infoName').textContent = user.name || 'User';
+            document.getElementById('infoEmail').textContent = user.email || 'user@example.com';
+            document.getElementById('infoPhone').textContent = user.phone || 'Not set';
+            document.getElementById('memberSince').textContent = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'January 2025';
+            const initials = (user.name || 'U').split(' ').map(n => n[0]).join('').substring(0, 1).toUpperCase();
+            document.getElementById('modalAvatar').textContent = initials;
+        } else {
+            document.getElementById('modalName').textContent = 'Guest User';
+            document.getElementById('modalEmail').textContent = 'guest@example.com';
+            document.getElementById('modalAvatar').textContent = 'G';
+            document.getElementById('infoName').textContent = 'Guest User';
+            document.getElementById('infoEmail').textContent = 'guest@example.com';
+        }
+        
+        const lastAnalysis = localStorage.getItem('lastAnalysis');
+        if (lastAnalysis) {
+            try {
+                const data = JSON.parse(lastAnalysis);
+                document.getElementById('modalTotalEnergy').textContent = (data.total_energy || 0).toFixed(2);
+                const savings = ((data.total_cost || 0) * 0.2).toFixed(2);
+                document.getElementById('modalTotalSavings').textContent = `₹${savings}`;
+                document.getElementById('modalCarbonSaved').textContent = ((data.total_carbon || 0) * 0.2).toFixed(2);
+                document.getElementById('modalEfficiency').textContent = `${data.efficiency_score || 80}%`;
+                document.getElementById('infoAvgDaily').textContent = ((data.total_energy || 0) / 7).toFixed(2) + ' kWh';
+            } catch(e) {}
+        }
+        document.getElementById('profileModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeProfileModal() { 
+        document.getElementById('profileModal').style.display = 'none'; 
+        document.body.style.overflow = 'auto'; 
     }
 
     // --- User-specific storage key ---
@@ -464,7 +834,6 @@
             recommendationsHtml = `<div class="detail-recommendation"><i class="fas fa-check-circle"></i> Follow standard energy saving practices.</div>`;
         }
         
-        // Chart section placeholder - shown only if chartData exists
         let chartSectionHtml = '';
         if (report.chartData) {
             chartSectionHtml = `
@@ -501,7 +870,6 @@
             </div>
         `;
         
-        // Render charts after DOM update
         if (report.chartData) {
             setTimeout(() => renderReportCharts(report.chartData), 150);
         }
@@ -512,7 +880,6 @@
         document.getElementById('reportModal').style.display = 'flex';
     }
 
-    // --- Render charts inside modal from saved chartData ---
     function renderReportCharts(cd) {
         const container = document.getElementById('chartsContainer');
         if (!container || !cd) return;
@@ -521,19 +888,15 @@
         if (cd.type === 'csv') {
             container.className = 'charts-grid-2';
 
-            // Daily Trend Chart
             if (cd.dailyTrend && cd.dailyTrend.labels && cd.dailyTrend.labels.length) {
                 container.innerHTML += `<div class="chart-box"><h6>📈 Daily Energy Trend</h6><div style="height:200px;"><canvas id="mDailyChart"></canvas></div></div>`;
             }
-            // Appliance Usage Chart
             if (cd.applianceUsage && cd.applianceUsage.labels && cd.applianceUsage.labels.length) {
                 container.innerHTML += `<div class="chart-box"><h6>🔌 Appliance Usage</h6><div style="height:200px;"><canvas id="mApplianceChart"></canvas></div></div>`;
             }
-            // Hourly Usage Chart
             if (cd.hourlyUsage && cd.hourlyUsage.labels && cd.hourlyUsage.labels.length) {
                 container.innerHTML += `<div class="chart-box"><h6>⏰ Hourly Usage</h6><div style="height:200px;"><canvas id="mHourlyChart"></canvas></div></div>`;
             }
-            // Room Usage Chart
             if (cd.roomUsage && cd.roomUsage.labels && cd.roomUsage.labels.length) {
                 container.innerHTML += `<div class="chart-box"><h6>🏠 Room-wise Consumption</h6><div style="height:200px;"><canvas id="mRoomChart"></canvas></div></div>`;
             }
@@ -571,7 +934,6 @@
             }, 100);
 
         } else {
-            // Manual or AI - appliance breakdown chart
             container.className = 'charts-grid-1';
             const breakdown = cd.applianceBreakdown;
             if (breakdown && breakdown.labels && breakdown.labels.length) {
@@ -588,7 +950,6 @@
     }
 
     function closeModal() {
-        // Destroy all chart instances to free memory
         modalCharts.forEach(c => { try { c.destroy(); } catch(e) {} });
         modalCharts = [];
         document.getElementById('reportModal').style.display = 'none';
@@ -654,6 +1015,20 @@ Recommendations:
         initStorage();
         updateCounts();
         selectMode('csv');
+        
+        // Dropdown and Profile Events
+        document.getElementById('userInfo').addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(); });
+        document.getElementById('dropdownProfile').addEventListener('click', openProfileModal);
+        document.getElementById('dropdownSettings').addEventListener('click', () => { closeDropdown(); showSettingsPanel(); });
+        document.getElementById('dropdownLogout').addEventListener('click', logout);
+        document.getElementById('backToHomeBtn').addEventListener('click', hideSettingsPanel);
+        
+        // Allow normal navigation to home - no preventDefault
+        document.getElementById('logoLink').addEventListener('click', function(e) {});
+        document.getElementById('homeNavLink').addEventListener('click', function(e) {});
+        
+        document.addEventListener('click', (e) => { const d = document.getElementById('userDropdown'); const ui = document.getElementById('userInfo'); if (d.style.display === 'block' && !ui.contains(e.target) && !d.contains(e.target)) d.style.display = 'none'; });
+        window.onclick = function(e) { const m = document.getElementById('profileModal'); if (e.target == m) closeProfileModal(); };
     });
 </script>
 </body>

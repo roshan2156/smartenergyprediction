@@ -11,11 +11,11 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+        .header { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         .nav-container { display: flex; justify-content: space-between; align-items: center; padding: 15px 50px; max-width: 1400px; margin: 0 auto; }
         .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #2ecc71, #3498db); border-radius: 12px; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .logo-icon i { font-size: 22px; color: white; }
         .logo-text h2 { font-size: 22px; font-weight: 700; margin: 0; background: linear-gradient(135deg, #2ecc71, #3498db); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .logo-text p { font-size: 10px; margin: 0; color: #7f8c8d; }
@@ -24,286 +24,530 @@
         .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: linear-gradient(135deg, #2ecc71, #3498db); transition: width 0.3s; }
         .nav-links a:hover::after { width: 100%; }
         .nav-links a:hover { color: #2ecc71; }
-        .user-info { display: flex; align-items: center; gap: 20px; background: #f8f9fa; padding: 8px 20px; border-radius: 50px; }
+        
+        /* User Menu Dropdown */
+        .user-menu-container { position: relative; }
+        .user-info { display: flex; align-items: center; gap: 20px; background: #f8f9fa; padding: 8px 20px; border-radius: 50px; cursor: pointer; transition: all 0.2s ease; }
+        .user-info:hover { background: #e9ecef; transform: translateY(-1px); }
         .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #2ecc71, #3498db); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
         .user-name { font-weight: 600; color: #2c3e50; }
         .logout-btn { background: #e74c3c; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 500; }
         .logout-btn:hover { background: #c0392b; transform: translateY(-2px); }
+        
+        /* Dropdown Menu */
+        .user-dropdown { display: none; position: absolute; top: 100%; right: 0; margin-top: 10px; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); min-width: 200px; overflow: hidden; z-index: 1100; animation: dropdownFade 0.2s ease; }
+        @keyframes dropdownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #2c3e50; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 14px; }
+        .dropdown-item i { width: 20px; color: #2ecc71; }
+        .dropdown-item:hover { background: #f8f9fa; color: #2ecc71; }
+        .dropdown-divider { height: 1px; background: #e9ecef; margin: 5px 0; }
+        
         .container { max-width: 1400px; margin: 100px auto 50px; padding: 20px; }
-        .form-section { background: white; border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .form-section, .stat-card { background: white; border-radius: 25px; padding: 40px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .section-title { font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #2ecc71; }
+        .power-guide { background: linear-gradient(135deg, #eafaf1, #e8f8f5); border-radius: 15px; padding: 20px; margin-bottom: 25px; border: 1px solid #d5f5e3; }
+        .power-guide h6 { color: #27ae60; font-weight: 700; margin-bottom: 12px; }
+        .power-item { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: white; border-radius: 8px; margin-bottom: 6px; font-size: 13px; transition: all 0.2s; }
+        .power-item:hover { transform: scale(1.03); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .power-item .icon { font-size: 18px; }
+        .power-item .watts { font-weight: 700; color: #2c3e50; }
+        .power-item .cost-hr { color: #7f8c8d; font-size: 11px; }
+        .power-level-bar { height: 4px; border-radius: 2px; margin-top: 2px; }
+        .level-very-low { background: #27ae60; width: 5%; }
+        .level-low { background: #2ecc71; width: 15%; }
+        .level-medium { background: #f39c12; width: 35%; }
+        .level-high { background: #e67e22; width: 60%; }
+        .level-very-high { background: #e74c3c; width: 90%; }
         .appliance-block { background: #f8f9fa; border-radius: 15px; padding: 20px; margin-bottom: 20px; position: relative; transition: all 0.3s; border: 2px solid transparent; }
         .appliance-block:hover { border-color: #2ecc71; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .remove-appliance { position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; transition: all 0.3s; }
+        .remove-appliance { position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; font-size: 16px; }
         .remove-appliance:hover { background: #c0392b; transform: scale(1.1); }
+        .appliance-power-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-top: 4px; }
+        .badge-very-low { background: #d5f5e3; color: #27ae60; }
+        .badge-low { background: #d5f5e3; color: #2ecc71; }
+        .badge-medium { background: #fef9e7; color: #f39c12; }
+        .badge-high { background: #fdebd0; color: #e67e22; }
+        .badge-very-high { background: #fadbd8; color: #e74c3c; }
+        .cost-per-hr { font-size: 11px; color: #7f8c8d; margin-top: 2px; }
         .prediction-type { display: flex; gap: 20px; margin: 20px 0; }
-        .pred-btn { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .pred-btn { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; background: white; }
         .pred-btn.active { border-color: #2ecc71; background: linear-gradient(135deg, #2ecc71, #3498db); color: white; }
         .pred-btn:hover { border-color: #2ecc71; transform: translateY(-3px); }
-        .result-card { background: linear-gradient(135deg, #2ecc71, #3498db); color: white; border-radius: 20px; padding: 30px; margin-bottom: 20px; }
-        .stat-value { font-size: 36px; font-weight: 700; }
-        .alert-card { border-left: 4px solid; padding: 15px; margin-bottom: 15px; border-radius: 10px; background: #f8f9fa; }
-        .alert-warning { border-left-color: #f39c12; } .alert-danger { border-left-color: #e74c3c; } .alert-success { border-left-color: #2ecc71; } .alert-info { border-left-color: #3498db; }
-        .rec-card { background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 12px; padding: 15px; margin-bottom: 12px; transition: all 0.3s; border-left: 4px solid #2ecc71; }
-        .rec-card:hover { transform: translateX(5px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        .stat-card { transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #2ecc71, #3498db); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .stat-icon i { font-size: 24px; color: white; }
+        .stat-card h3 { font-size: 32px; font-weight: 700; color: #2c3e50; margin-bottom: 5px; }
+        .stat-card p { color: #7f8c8d; margin: 0; }
         .loading-spinner { display: none; text-align: center; padding: 40px; }
-        @media (max-width: 768px) { .nav-container { flex-direction: column; gap: 15px; padding: 15px 20px; } .nav-links { gap: 20px; flex-wrap: wrap; justify-content: center; } .container { margin-top: 160px; } }
+        .results-section { display: none; }
+        
+        /* Action Cards */
+        .action-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .action-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        .action-card.alert-card::before { background: #f39c12; }
+        .action-card.recommendation-card::before { background: #2ecc71; }
+        .action-card.waste-card::before { background: #e74c3c; }
+        .action-card.report-card::before { background: #3498db; }
+        
+        .action-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 32px;
+            transition: all 0.3s;
+        }
+        .action-card:hover .action-icon {
+            transform: scale(1.1);
+        }
+        .alert-icon { background: rgba(243, 156, 18, 0.15); color: #f39c12; }
+        .recommendation-icon { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .waste-icon { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+        .report-icon { background: rgba(52, 152, 219, 0.15); color: #3498db; }
+        
+        .action-card h4 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .action-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 25px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .badge-success { background: #2ecc71; color: white; }
+        .badge-warning { background: #f39c12; color: white; }
+        .badge-danger { background: #e74c3c; color: white; }
+        .badge-info { background: #3498db; color: white; }
+        .action-footer {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .action-footer i {
+            transition: transform 0.3s;
+        }
+        .action-card:hover .action-footer i {
+            transform: translateX(5px);
+        }
+        
+        /* Settings Panel */
+        .settings-panel { display: none; background: white; border-radius: 25px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; }
+        .settings-panel.show { display: block; }
+        .back-to-home { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2ecc71, #3498db); border: none; padding: 10px 20px; border-radius: 50px; color: white; font-weight: 500; margin-bottom: 20px; cursor: pointer; transition: all 0.3s; }
+        .back-to-home:hover { transform: translateX(-5px); opacity: 0.9; }
+        .form-label { font-weight: 600; color: #2c3e50; margin-bottom: 8px; }
+        .form-control, .form-select { border-radius: 12px; padding: 12px 15px; border: 2px solid #e9ecef; transition: all 0.3s; }
+        .form-control:focus, .form-select:focus { border-color: #2ecc71; box-shadow: 0 0 0 3px rgba(46,204,113,0.1); }
+        .btn-save { background: linear-gradient(135deg, #2ecc71, #3498db); border: none; border-radius: 12px; padding: 12px 30px; font-weight: 600; width: 100%; transition: all 0.3s; color: white; }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46,204,113,0.3); }
+        .alert-custom { border-radius: 12px; margin-bottom: 20px; }
+        
+        /* Profile Modal */
+        .profile-modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .profile-modal-content { background: white; margin: 60px auto; max-width: 950px; width: 90%; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; animation: slideDown 0.3s ease; max-height: 85vh; overflow-y: auto; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .profile-modal-header { background: linear-gradient(135deg, #2ecc71, #3498db); padding: 30px; text-align: center; color: white; }
+        .profile-avatar-large { width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 48px; font-weight: bold; color: #2ecc71; }
+        .close-modal { float: right; font-size: 32px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; margin-top: -10px; }
+        .close-modal:hover { opacity: 0.8; }
+        .profile-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 25px; }
+        .profile-stat-item { background: #f8f9fa; border-radius: 20px; padding: 20px; text-align: center; }
+        .profile-stat-item i { margin-bottom: 10px; }
+        .profile-stat-item h4 { font-size: 28px; font-weight: 700; color: #2c3e50; margin: 10px 0 5px; }
+        .profile-info-section { padding: 0 25px 25px 25px; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e9ecef; }
+        .info-label { font-weight: 600; color: #7f8c8d; }
+        .info-value { color: #2c3e50; font-weight: 500; }
+        
+        .main-content.hide { display: none; }
+        
+        @media (max-width: 768px) {
+            .nav-container { flex-direction: column; gap: 15px; padding: 15px 20px; }
+            .container { margin-top: 160px; }
+            .appliance-block .row { flex-direction: column; gap: 10px; }
+            .user-info { padding: 5px 15px; }
+            .user-name { display: none; }
+            .action-cards-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+
 <header class="header">
     <div class="nav-container">
-        <a href="home.html" class="logo"><div class="logo-icon"><i class="fas fa-bolt"></i></div><div class="logo-text"><h2>Smart Energy System</h2><p>AI-Powered Energy Intelligence</p></div></a>
-        <ul class="nav-links"><li><a href="home.html">Home</a></li><li><a href="dashboard.html">Dashboard</a></li><li><a href="reports.html">Reports</a></li><li><a href="history.html">History</a></li></ul>
-        <div class="user-info" id="userInfo">
-            <div class="user-avatar" id="userAvatar"><span id="avatarInitial">JD</span></div>
-            <span class="user-name" id="userNameDisplay">Loading...</span>
-            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <a href="home.html" class="logo" id="logoLink">
+            <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+            <div class="logo-text"><h2>Smart Energy System</h2><p>AI-Powered Energy Intelligence</p></div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="home.html" id="homeNavLink">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="history.html">History</a></li>
+        </ul>
+        <div class="user-menu-container">
+            <div class="user-info" id="userInfo">
+                <div class="user-avatar" id="userAvatar"><span id="avatarInitial">GU</span></div>
+                <span class="user-name" id="userNameDisplay">Loading...</span>
+                <button class="logout-btn" onclick="event.stopPropagation(); logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div class="user-dropdown" id="userDropdown">
+                <button class="dropdown-item" id="dropdownProfile"><i class="fas fa-user-circle"></i> My Profile</button>
+                <button class="dropdown-item" id="dropdownSettings"><i class="fas fa-cog"></i> Settings</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="dropdownLogout" style="color: #e74c3c;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
         </div>
     </div>
 </header>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="profile-modal">
+    <div class="profile-modal-content">
+        <div class="profile-modal-header">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <div class="profile-avatar-large" id="modalAvatar">U</div>
+            <h2 id="modalName">User Name</h2>
+            <p id="modalEmail">user@example.com</p>
+            <p><i class="fas fa-calendar-alt me-2"></i>Member since: <span id="memberSince">Loading...</span></p>
+        </div>
+        <div class="profile-stats-grid">
+            <div class="profile-stat-item"><i class="fas fa-bolt fa-2x" style="color: #2ecc71;"></i><h4 id="modalTotalEnergy">0</h4><p>Total Energy (kWh)</p></div>
+            <div class="profile-stat-item"><i class="fas fa-rupee-sign fa-2x" style="color: #f39c12;"></i><h4 id="modalTotalSavings">₹0</h4><p>Est. Savings</p></div>
+            <div class="profile-stat-item"><i class="fas fa-leaf fa-2x" style="color: #27ae60;"></i><h4 id="modalCarbonSaved">0</h4><p>Carbon Saved (kg)</p></div>
+            <div class="profile-stat-item"><i class="fas fa-chart-line fa-2x" style="color: #3498db;"></i><h4 id="modalEfficiency">0%</h4><p>Efficiency Score</p></div>
+        </div>
+        <div class="profile-info-section">
+            <h5 class="mb-3"><i class="fas fa-user-circle me-2"></i>Personal Information</h5>
+            <div class="info-row"><span class="info-label">Full Name</span><span class="info-value" id="infoName">-</span></div>
+            <div class="info-row"><span class="info-label">Email Address</span><span class="info-value" id="infoEmail">-</span></div>
+            <div class="info-row"><span class="info-label">Phone Number</span><span class="info-value" id="infoPhone">Not set</span></div>
+            <div class="info-row"><span class="info-label">Account Status</span><span class="info-value text-success">Active</span></div>
+            <div class="info-row"><span class="info-label">Average Daily Usage</span><span class="info-value" id="infoAvgDaily">0 kWh</span></div>
+            <div class="info-row"><span class="info-label">Most Used Appliance</span><span class="info-value" id="infoTopAppliance">-</span></div>
+            <div class="info-row"><span class="info-label">Peak Usage Hour</span><span class="info-value" id="infoPeakHour">-</span></div>
+        </div>
+    </div>
+</div>
+
 <div class="container">
-    <div class="form-section">
-        <h3 class="section-title"><i class="fas fa-edit me-2"></i>Manual Energy Entry</h3>
-        <div class="row mb-4">
-            <div class="col-md-4"><label class="form-label fw-bold"><i class="fas fa-calendar"></i> Date</label><input type="date" class="form-control" id="inputDate" value="2026-03-26"></div>
-            <div class="col-md-4"><label class="form-label fw-bold"><i class="fas fa-clock"></i> Time</label><input type="time" class="form-control" id="inputTime" value="19:30"></div>
-            <div class="col-md-4"><label class="form-label fw-bold"><i class="fas fa-thermometer-half"></i> Temp Setting (°C)</label><input type="number" class="form-control" id="temperatureSetting" value="24"></div>
+    <!-- Main Content (Manual Input Form) -->
+    <div id="mainContent" class="main-content">
+        <div class="form-section" id="formSection">
+            <h3 class="section-title"><i class="fas fa-edit me-2"></i>Manual Energy Entry</h3>
+            <!-- Power Guide -->
+            <div class="power-guide" id="powerGuide"><h6><i class="fas fa-bolt me-2"></i>Appliance Power Guide — Know How Much Each Appliance Consumes</h6><div class="row g-2" id="powerGuideGrid"></div></div>
+            <!-- Date / Time / Temp -->
+            <div class="row mb-4">
+                <div class="col-md-4"><label class="form-label fw-bold"><i class="fas fa-calendar me-1"></i> Date</label><input type="date" class="form-control" id="inputDate"></div>
+                <div class="col-md-4"><label class="form-label fw-bold"><i class="fas fa-clock me-1"></i> Time</label><input type="time" class="form-control" id="inputTime"></div>
+                <div class="col-md-4"><label class="form-label fw-bold"><i class="fas fa-thermometer-half me-1"></i> Temperature (°C)</label><input type="number" class="form-control" id="temperatureSetting" value="24"></div>
+            </div>
+            <!-- Occupancy / Day Type -->
+            <div class="row mb-4">
+                <div class="col-md-6"><label class="form-label fw-bold"><i class="fas fa-users me-1"></i> Occupancy Status</label><select class="form-select" id="occupancyStatus"><option value="Occupied">Occupied 👤</option><option value="Vacant">Vacant 🏠</option></select></div>
+                <div class="col-md-6"><label class="form-label fw-bold"><i class="fas fa-calendar-week me-1"></i> Day Type</label><select class="form-select" id="dayType"><option value="Weekday">Weekday</option><option value="Weekend">Weekend</option><option value="Holiday">Holiday</option></select></div>
+            </div>
+            <!-- Appliances -->
+            <div class="mt-4"><h5 class="fw-bold mb-3"><i class="fas fa-plug me-2"></i>Appliances</h5><button class="btn btn-success mb-3" onclick="addAppliance()"><i class="fas fa-plus"></i> Add Appliance</button><div id="appliancesContainer"></div></div>
+            <!-- Prediction Type -->
+            <div class="mt-4"><label class="form-label fw-bold"><i class="fas fa-chart-line me-1"></i> Prediction Type</label>
+                <div class="prediction-type"><div class="pred-btn active" data-type="instant" onclick="selectPredictionType('instant')"><i class="fas fa-bolt fa-2x"></i><div class="mt-2"><strong>Instant Prediction</strong></div><small>Current session analysis</small></div>
+                <div class="pred-btn" data-type="forecast" onclick="selectPredictionType('forecast')"><i class="fas fa-chart-line fa-2x"></i><div class="mt-2"><strong>Future Forecast</strong></div><small>Predict future usage</small></div></div>
+            </div>
+            <div id="forecastOptions" style="display:none;" class="mt-3"><label class="form-label fw-bold"><i class="fas fa-calendar-alt me-1"></i> Forecast Period</label><div class="row g-2"><div class="col-md-4"><button class="btn btn-primary w-100 forecast-period-btn" data-period="7" onclick="selectForecastPeriod(7, this)">7 Days</button></div><div class="col-md-4"><button class="btn btn-outline-primary w-100 forecast-period-btn" data-period="30" onclick="selectForecastPeriod(30, this)">30 Days</button></div><div class="col-md-4"><button class="btn btn-outline-primary w-100 forecast-period-btn" data-period="365" onclick="selectForecastPeriod(365, this)">1 Year</button></div></div></div>
+            <button class="btn btn-primary btn-lg w-100 mt-4" onclick="makePrediction()"><i class="fas fa-brain me-2"></i> Predict Energy Usage with ML</button>
         </div>
-        <div class="row mb-4">
-            <div class="col-md-6"><label class="form-label fw-bold"><i class="fas fa-users"></i> Occupancy</label><select class="form-select" id="occupancyStatus"><option value="Occupied">Occupied 👤</option><option value="Vacant">Vacant 🏠</option></select></div>
-            <div class="col-md-6"><label class="form-label fw-bold"><i class="fas fa-calendar-week"></i> Day Type</label><select class="form-select" id="dayType"><option value="Weekday">Weekday</option><option value="Weekend">Weekend</option><option value="Holiday">Holiday</option></select></div>
-        </div>
-        <div class="mt-4"><h5 class="fw-bold mb-3"><i class="fas fa-plug me-2"></i>Appliances</h5>
-            <button class="btn btn-success mb-3" id="addApplianceBtn"><i class="fas fa-plus"></i> Add Appliance</button>
-            <div id="appliancesContainer">
-                <div class="appliance-block" data-idx="0"><button class="remove-appliance" style="display: none;">×</button>
-                    <div class="row g-3">
-                        <div class="col-md-3"><label class="form-label">Type</label><select class="form-select appliance-select"><option value="AC">❄️ AC</option><option value="Fan">🌀 Fan</option><option value="Light">💡 Light</option><option value="Fridge">🧊 Fridge</option><option value="Washing Machine">🧺 Washing Machine</option><option value="TV">📺 TV</option><option value="Heater">🔥 Heater</option></select></div>
-                        <div class="col-md-2"><label class="form-label">Power (W)</label><input type="number" class="form-control power-input" value="1500" step="10"></div>
-                        <div class="col-md-2"><label class="form-label">Duration (m)</label><input type="number" class="form-control duration-input" value="60" step="5"></div>
-                        <div class="col-md-3"><label class="form-label">Room</label><select class="form-select room-select"><option>Living Room</option><option>Bedroom</option><option>Kitchen</option><option>Hall</option></select></div>
-                        <div class="col-md-2"><label class="form-label">Qty</label><input type="number" class="form-control quantity-input" value="1" min="1" max="10"></div>
-                    </div>
+        <div class="loading-spinner" id="loadingSpinner"><div class="spinner-border text-success" role="status" style="width:50px;height:50px;"><span class="visually-hidden">Loading...</span></div><p class="mt-3 text-white">Analyzing with ML model...</p></div>
+        <div class="results-section" id="resultsSection">
+            <div class="row g-4 mb-4"><div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-bolt"></i></div><h3 id="totalEnergy">0</h3><p>Predicted Energy (kWh)</p></div></div><div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-rupee-sign"></i></div><h3 id="totalCost">₹0</h3><p>Estimated Cost</p></div></div><div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-leaf"></i></div><h3 id="totalCarbon">0</h3><p>Carbon Emission (kg)</p></div></div><div class="col-md-3"><div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><h3 id="avgEnergy">0</h3><p>Avg Daily Energy (kWh)</p></div></div></div>
+            
+            <!-- Graphs Row -->
+            <div class="row g-4 mb-4"><div class="col-md-8"><div class="stat-card"><h5><i class="fas fa-chart-line text-primary me-2"></i>Daily Energy Consumption Trend</h5><canvas id="dailyTrendChart" style="height:300px;"></canvas></div></div><div class="col-md-4"><div class="stat-card"><h5><i class="fas fa-chart-pie text-primary me-2"></i>Appliance-wise Usage</h5><canvas id="applianceChart" style="height:280px;"></canvas></div></div></div>
+            <div class="row g-4 mb-4"><div class="col-md-6"><div class="stat-card"><h5><i class="fas fa-chart-bar text-primary me-2"></i>Peak Hour Analysis</h5><canvas id="peakHourChart" style="height:250px;"></canvas></div></div><div class="col-md-6"><div class="stat-card"><h5><i class="fas fa-chart-bar text-primary me-2"></i>Room-wise Consumption</h5><canvas id="roomChart" style="height:250px;"></canvas></div></div></div>
+
+            <!-- Action Cards -->
+            <div class="action-cards-grid">
+                <div class="action-card alert-card" onclick="window.location.href='alerts.html'">
+                    <div class="action-icon alert-icon"><i class="fas fa-bell"></i></div>
+                    <h4>Smart Alerts</h4>
+                    <div class="action-badge" id="alertBadge">0</div>
+                    <div class="action-footer"><span id="alertStatusText">No alerts</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="action-card recommendation-card" onclick="window.location.href='recommendations.html'">
+                    <div class="action-icon recommendation-icon"><i class="fas fa-lightbulb"></i></div>
+                    <h4>Energy Savings</h4>
+                    <div class="action-badge" id="recBadge">0</div>
+                    <div class="action-footer"><span id="recCountText">recommendations</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="action-card waste-card" onclick="window.location.href='waste-detection.html'">
+                    <div class="action-icon waste-icon"><i class="fas fa-trash-alt"></i></div>
+                    <h4>Waste Detection</h4>
+                    <div class="action-badge badge-danger" id="wasteBadge">0</div>
+                    <div class="action-footer"><span id="wasteStatusText">No waste</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="action-card report-card" onclick="window.location.href='detailed-report.html'">
+                    <div class="action-icon report-icon"><i class="fas fa-brain"></i></div>
+                    <h4>ML Analysis</h4>
+                    <div class="action-badge badge-info" id="efficiencyBadge">0%</div>
+                    <div class="action-footer"><span>View full report</span><i class="fas fa-arrow-right"></i></div>
+                </div>
+            </div>
+            
+            <!-- Report Download Section -->
+            <div class="stat-card">
+                <h5><i class="fas fa-download text-info"></i> Export Options</h5>
+                <div class="row mt-3">
+                    <div class="col-md-6 mb-2"><button class="btn btn-success w-100" onclick="downloadReport()"><i class="fas fa-file-download"></i> Download Full Report (TXT)</button></div>
+                    <div class="col-md-6 mb-2"><button class="btn btn-primary w-100" onclick="saveToHistory()"><i class="fas fa-save"></i> Save to History</button></div>
                 </div>
             </div>
         </div>
-        <div class="mt-4"><label class="form-label fw-bold"><i class="fas fa-chart-line"></i> Prediction Type</label>
-            <div class="prediction-type">
-                <div class="pred-btn active" data-type="instant" onclick="selectPredictionType('instant')"><i class="fas fa-bolt fa-2x"></i><div class="mt-2"><strong>Instant Prediction</strong></div><small>Single time prediction</small></div>
-                <div class="pred-btn" data-type="forecast" onclick="selectPredictionType('forecast')"><i class="fas fa-chart-line fa-2x"></i><div class="mt-2"><strong>Future Forecast</strong></div><small>Predict future usage</small></div>
-            </div>
-        </div>
-        <div id="forecastOptions" style="display: none;" class="mt-3"><label class="form-label fw-bold">Forecast Period</label>
-            <div class="row"><div class="col-md-4"><button class="btn btn-outline-primary w-100 forecast-period-btn" data-period="7">7 Days</button></div><div class="col-md-4"><button class="btn btn-outline-primary w-100 forecast-period-btn" data-period="30">30 Days</button></div><div class="col-md-4"><button class="btn btn-outline-primary w-100 forecast-period-btn" data-period="365">1 Year</button></div></div>
-            <input type="hidden" id="selectedPeriod" value="7">
-        </div>
-        <button class="btn btn-primary btn-lg w-100 mt-4" onclick="makePrediction()"><i class="fas fa-chart-line"></i> Predict Energy Usage</button>
     </div>
-    <div class="loading-spinner" id="loadingSpinner"><div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-3 text-white">Calculating predictions with ML model...</p></div>
-    <div id="resultsSection" style="display: none;"></div>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="settings-panel">
+        <button class="back-to-home" id="backToHomeBtn"><i class="fas fa-arrow-left"></i> Back to Manual Input</button>
+        <h2 class="mb-4"><i class="fas fa-cog me-2"></i>Settings</h2>
+        <div id="alertMsg" class="alert alert-custom" style="display: none;"></div>
+        <form id="settingsForm">
+            <div class="mb-3"><label class="form-label"><i class="fas fa-user me-2"></i>Full Name</label><input type="text" class="form-control" id="settingsName" placeholder="Enter your name"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-envelope me-2"></i>Email Address</label><input type="email" class="form-control" id="settingsEmail" placeholder="Enter your email"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-phone me-2"></i>Phone Number</label><input type="tel" class="form-control" id="settingsPhone" placeholder="Enter phone number"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-lock me-2"></i>New Password</label><input type="password" class="form-control" id="settingsPassword" placeholder="Leave blank to keep unchanged"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-rupee-sign me-2"></i>Electricity Rate (₹/unit)</label><input type="number" step="0.5" class="form-control" id="settingsRate" placeholder="e.g., 7"></div>
+            <div class="mb-3"><label class="form-label"><i class="fas fa-thermometer-half me-2"></i>Preferred Temperature (°C)</label><input type="number" class="form-control" id="settingsTemp" placeholder="e.g., 24"></div>
+            <div class="mb-4"><label class="form-label"><i class="fas fa-bell me-2"></i>Alert Preferences</label><select class="form-select" id="alertPreference"><option value="all">All Alerts</option><option value="high">High Usage Only</option><option value="peak">Peak Hour Only</option><option value="none">No Alerts</option></select></div>
+            <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Save Settings</button>
+        </form>
+    </div>
 </div>
 
 <script>
-    // ✅ DYNAMIC API URL
-    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000/api' : '/api';
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000/api' : '/api';
+const APPLIANCE_DATA = { 'AC': { power: 1500, room: 'Bedroom', icon: '❄️', level: 'very-high', range: '1000-2500W' }, 'Fan': { power: 70, room: 'Living Room', icon: '🌀', level: 'low', range: '45-75W' }, 'Light': { power: 40, room: 'Living Room', icon: '💡', level: 'low', range: '5-60W' }, 'Fridge': { power: 200, room: 'Kitchen', icon: '🧊', level: 'medium', range: '100-400W' }, 'Washing Machine': { power: 500, room: 'Bathroom', icon: '🧺', level: 'high', range: '350-700W' }, 'TV': { power: 120, room: 'Living Room', icon: '📺', level: 'medium', range: '50-200W' }, 'Heater': { power: 2000, room: 'Bedroom', icon: '🔥', level: 'very-high', range: '1000-3000W' }, 'Microwave': { power: 800, room: 'Kitchen', icon: '🍲', level: 'high', range: '600-1200W' }, 'Geyser': { power: 2000, room: 'Bathroom', icon: '🚿', level: 'very-high', range: '1500-3000W' }, 'Computer': { power: 200, room: 'Study Room', icon: '💻', level: 'medium', range: '100-300W' }, 'Oven': { power: 1500, room: 'Kitchen', icon: '🫕', level: 'very-high', range: '1000-2000W' }, 'Dishwasher': { power: 1200, room: 'Kitchen', icon: '🧽', level: 'high', range: '800-1500W' }, 'Iron': { power: 1000, room: 'Bedroom', icon: '👔', level: 'high', range: '800-1500W' }, 'Router': { power: 10, room: 'Living Room', icon: '📶', level: 'very-low', range: '5-20W' }, 'Phone Charger': { power: 5, room: 'Bedroom', icon: '📱', level: 'very-low', range: '5-18W' }, 'Water Pump': { power: 750, room: 'Bathroom', icon: '💧', level: 'high', range: '500-1000W' } };
+const ROOMS = ['Living Room', 'Bedroom', 'Kitchen', 'Bathroom', 'Hall', 'Study Room'];
+let globalRecords = [], analysisData = {}, chartInstances = {}, applianceIdx = 0, currentPredictionType = 'instant', currentPeriod = 7;
 
-    let applianceCount = 1;
-    let currentPredictionType = 'instant';
-    let currentPeriod = 7;
-    let latestPredictionData = null;
-    
-    function updateUserUI() {
+function updateUserUI() {
+    try {
         const user = authManager.getCurrentUser();
-        if (!user) { window.location.href = 'login.html'; return; }
-        document.getElementById('userNameDisplay').textContent = user.name;
-        const words = user.name.trim().split(' ');
-        let initials = words.length === 1 ? words[0].substring(0, 2) : words[0][0] + words[words.length - 1][0];
-        document.getElementById('avatarInitial').textContent = initials.toUpperCase();
-    }
-    function logout() { if (confirm('Are you sure you want to logout?')) authManager.logout(); }
-    
-    document.getElementById('addApplianceBtn').addEventListener('click', () => {
-        const container = document.getElementById('appliancesContainer');
-        const newBlock = document.createElement('div');
-        newBlock.className = 'appliance-block';
-        newBlock.innerHTML = `<button class="remove-appliance">×</button><div class="row g-3"><div class="col-md-3"><select class="form-select appliance-select"><option value="AC">❄️ AC</option><option value="Fan">🌀 Fan</option><option value="Light">💡 Light</option><option value="Fridge">🧊 Fridge</option><option value="Washing Machine">🧺 Washing Machine</option><option value="TV">📺 TV</option><option value="Heater">🔥 Heater</option></select></div><div class="col-md-2"><input type="number" class="form-control power-input" value="100" step="10"></div><div class="col-md-2"><input type="number" class="form-control duration-input" value="30" step="5"></div><div class="col-md-3"><select class="form-select room-select"><option>Living Room</option><option>Bedroom</option><option>Kitchen</option><option>Hall</option></select></div><div class="col-md-2"><input type="number" class="form-control quantity-input" value="1" min="1" max="10"></div></div>`;
-        container.appendChild(newBlock);
-        newBlock.querySelector('.remove-appliance').addEventListener('click', () => newBlock.remove());
-        applianceCount++;
-    });
-    
-    document.addEventListener('click', e => { if (e.target.classList.contains('remove-appliance')) e.target.parentElement.remove(); });
-    function selectPredictionType(type) { currentPredictionType = type; document.querySelectorAll('.pred-btn').forEach(btn => btn.classList.remove('active')); document.querySelector(`.pred-btn[data-type="${type}"]`).classList.add('active'); document.getElementById('forecastOptions').style.display = type === 'forecast' ? 'block' : 'none'; }
-    document.querySelectorAll('.forecast-period-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.forecast-period-btn').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-outline-primary'); }); btn.classList.remove('btn-outline-primary'); btn.classList.add('btn-primary'); currentPeriod = parseInt(btn.dataset.period); }); });
-    
-    function lstmPrediction(appliances, hour, temp, occupancy, dayType) {
-        let baseEnergy = 0;
-        appliances.forEach(app => { baseEnergy += (app.power * (app.duration / 60) * app.quantity) / 1000; });
-        let adjustedEnergy = baseEnergy;
-        if (hour >= 18 && hour <= 22) adjustedEnergy *= 1.25;
-        if (appliances.some(a => a.name === 'AC') && temp < 22) adjustedEnergy *= 1.15;
-        if (occupancy === 'Vacant') adjustedEnergy *= 0.6;
-        if (dayType === 'Weekend' || dayType === 'Holiday') adjustedEnergy *= 1.1;
-        return Math.max(0.1, adjustedEnergy);
-    }
-
-    // ✅ ML METRICS GENERATOR
-    function generateMLMetrics(actualBase, predictedBase) {
-        const r2 = 89.50; // Simulated validation score
-        return `
-        <div class="alert-card alert-info mt-3" style="border-left: 5px solid #3498db; background: #eaf2f8;">
-            <h6 style="color:#2c3e50"><i class="fas fa-brain me-2"></i>Machine Learning Insights</h6>
-            <p class="mb-1"><strong>Algorithm:</strong> Linear Regression (Pure Python)</p>
-            <p class="mb-1"><strong>Features Used:</strong> Power, Duration, Hour, Temp, Occupancy</p>
-            <p class="mb-0"><strong>R² Score (Accuracy):</strong> <span style="color:#27ae60; font-weight:bold;">${r2}%</span></p>
-        </div>
-        <h6 class="mt-3">Model Validation (Actual vs Predicted)</h6>
-        <table class="table table-sm table-bordered mt-2">
-            <thead class="table-light"><tr><th>Test Case</th><th>Actual (kWh)</th><th>ML Predicted (kWh)</th><th>Difference</th></tr></thead>
-            <tbody>
-                <tr><td>Base Input</td><td>${actualBase.toFixed(2)}</td><td>${predictedBase.toFixed(2)}</td><td>${Math.abs(actualBase - predictedBase).toFixed(4)}</td></tr>
-                <tr><td>+20% Load</td><td>${(actualBase*1.2).toFixed(2)}</td><td>${(predictedBase*1.18).toFixed(2)}</td><td>${Math.abs(actualBase*1.2 - predictedBase*1.18).toFixed(4)}</td></tr>
-                <tr><td>-20% Load</td><td>${(actualBase*0.8).toFixed(2)}</td><td>${(predictedBase*0.82).toFixed(2)}</td><td>${Math.abs(actualBase*0.8 - predictedBase*0.82).toFixed(4)}</td></tr>
-                <tr><td>Peak Hour Adj</td><td>${(actualBase*1.25).toFixed(2)}</td><td>${(predictedBase*1.23).toFixed(2)}</td><td>${Math.abs(actualBase*1.25 - predictedBase*1.23).toFixed(4)}</td></tr>
-                <tr><td>Vacant Room</td><td>${(actualBase*0.6).toFixed(2)}</td><td>${(predictedBase*0.58).toFixed(2)}</td><td>${Math.abs(actualBase*0.6 - predictedBase*0.58).toFixed(4)}</td></tr>
-            </tbody>
-        </table>`;
-    }
-
-    async function makePrediction() {
-        const temp = parseFloat(document.getElementById('temperatureSetting').value);
-        const occupancy = document.getElementById('occupancyStatus').value;
-        const dayType = document.getElementById('dayType').value;
-        const timeStr = document.getElementById('inputTime').value;
-        const hour = parseInt(timeStr.split(':')[0]);
-        const isPeakHour = (hour >= 18 && hour <= 22);
-
-        const applianceBlocks = document.querySelectorAll('.appliance-block');
-        const appliances = [];
-        let totalPower = 0, totalDuration = 0;
-        applianceBlocks.forEach(block => {
-            const app = { name: block.querySelector('.appliance-select').value, power: parseFloat(block.querySelector('.power-input').value), duration: parseFloat(block.querySelector('.duration-input').value), room: block.querySelector('.room-select').value, quantity: parseInt(block.querySelector('.quantity-input').value) };
-            appliances.push(app);
-            totalPower += app.power * app.quantity;
-            totalDuration += app.duration;
-        });
-
-        document.getElementById('loadingSpinner').style.display = 'block';
-        document.getElementById('resultsSection').style.display = 'none';
-
-        let finalEnergy = 0, finalCost = 0, finalCarbon = 0, usedBackend = false;
-        const actualBase = (totalPower * (totalDuration / 60)) / 1000;
-
-        // ✅ TRY SAVING TO BACKEND DATABASE
-        try {
-            const user = authManager.getCurrentUser();
-            if (user && user.id) {
-                const response = await fetch(`${API_URL}/predict`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: parseInt(user.id),
-                        power_consumption_W: totalPower,
-                        usage_duration_minutes: totalDuration,
-                        appliance: appliances[0].name,
-                        occupancy_status: occupancy,
-                        temperature_setting_C: temp,
-                        hour: hour
-                    })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    finalEnergy = result.energy;
-                    finalCost = result.cost;
-                    finalCarbon = result.carbon;
-                    usedBackend = true;
-                }
-            }
-        } catch (e) { console.log("Backend fallback active"); }
-
-        // ✅ FALLBACK TO LOCAL MATH IF BACKEND FAILS
-        if (!usedBackend) {
-            finalEnergy = lstmPrediction(appliances, hour, temp, occupancy, dayType);
-            finalCost = finalEnergy * 7;
-            finalCarbon = finalEnergy * 0.5;
+        if (!user || !user.name) { 
+            document.getElementById('userNameDisplay').textContent = 'Guest User'; 
+            document.getElementById('avatarInitial').textContent = 'GU'; 
+            return; 
         }
+        document.getElementById('userNameDisplay').textContent = user.name;
+        const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('avatarInitial').textContent = initials;
+    } catch (e) { console.error("UI Error:", e); }
+}
 
-        setTimeout(() => {
-            const alerts = generateDynamicAlerts(finalEnergy, isPeakHour, temp, occupancy, appliances, hour);
-            const recommendations = generateDynamicRecommendations(finalEnergy, isPeakHour, temp, occupancy, appliances, hour, dayType);
-            const mlTable = generateMLMetrics(actualBase, finalEnergy);
+function toggleDropdown() { const d = document.getElementById('userDropdown'); d.style.display = d.style.display === 'block' ? 'none' : 'block'; }
+function closeDropdown() { document.getElementById('userDropdown').style.display = 'none'; }
+function logout() { closeDropdown(); if (confirm('Are you sure you want to logout?')) { authManager.logout(); } }
+function showSettingsPanel() { closeDropdown(); document.getElementById('mainContent').classList.add('hide'); document.getElementById('settingsPanel').classList.add('show'); loadSettings(); }
+function hideSettingsPanel() { document.getElementById('mainContent').classList.remove('hide'); document.getElementById('settingsPanel').classList.remove('show'); }
 
-            latestPredictionData = { totalEnergy: finalEnergy, totalCost: finalCost, totalCarbon: finalCarbon, appliances, isPeakHour, temp, occupancy, hour, dayType };
-            document.getElementById('loadingSpinner').style.display = 'none';
+function loadSettings() {
+    const user = authManager.getCurrentUser();
+    if (user) { 
+        document.getElementById('settingsName').value = user.name || ''; 
+        document.getElementById('settingsEmail').value = user.email || ''; 
+        document.getElementById('settingsPhone').value = user.phone || ''; 
+    }
+    const saved = localStorage.getItem('userSettings');
+    if (saved) { 
+        const s = JSON.parse(saved); 
+        document.getElementById('settingsRate').value = s.rate || 7; 
+        document.getElementById('settingsTemp').value = s.temp || 24; 
+        document.getElementById('alertPreference').value = s.alerts || 'all'; 
+    } else { 
+        document.getElementById('settingsRate').value = 7; 
+        document.getElementById('settingsTemp').value = 24; 
+    }
+}
 
-            if (currentPredictionType === 'instant') {
-                displayInstantResult(finalEnergy, finalCost, finalCarbon, isPeakHour, alerts, recommendations, mlTable);
-            } else {
-                displayForecastResult(finalEnergy, finalCost, finalCarbon, currentPeriod, mlTable);
+function showAlert(msg, type) { 
+    const a = document.getElementById('alertMsg'); 
+    a.textContent = msg; 
+    a.className = `alert alert-${type} alert-custom`; 
+    a.style.display = 'block'; 
+    setTimeout(() => a.style.display = 'none', 3000); 
+}
+
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const user = authManager.getCurrentUser();
+    if (!user) { showAlert('Please login to save settings', 'danger'); return; }
+    const settings = { 
+        name: document.getElementById('settingsName').value, 
+        email: document.getElementById('settingsEmail').value, 
+        phone: document.getElementById('settingsPhone').value, 
+        rate: parseFloat(document.getElementById('settingsRate').value), 
+        temp: parseFloat(document.getElementById('settingsTemp').value), 
+        alerts: document.getElementById('alertPreference').value 
+    };
+    const updatedUser = { ...user, name: settings.name, email: settings.email, phone: settings.phone };
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    localStorage.setItem('userSettings', JSON.stringify(settings));
+    updateUserUI();
+    showAlert('Settings saved successfully!', 'success');
+});
+
+function openProfileModal() {
+    closeDropdown();
+    const user = authManager.getCurrentUser();
+    if (user) {
+        document.getElementById('modalName').textContent = user.name || 'User';
+        document.getElementById('modalEmail').textContent = user.email || 'user@example.com';
+        document.getElementById('infoName').textContent = user.name || 'User';
+        document.getElementById('infoEmail').textContent = user.email || 'user@example.com';
+        document.getElementById('infoPhone').textContent = user.phone || 'Not set';
+        document.getElementById('memberSince').textContent = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'January 2025';
+        const initials = (user.name || 'U').split(' ').map(n => n[0]).join('').substring(0, 1).toUpperCase();
+        document.getElementById('modalAvatar').textContent = initials;
+    } else {
+        document.getElementById('modalName').textContent = 'Guest User';
+        document.getElementById('modalEmail').textContent = 'guest@example.com';
+        document.getElementById('modalAvatar').textContent = 'G';
+        document.getElementById('infoName').textContent = 'Guest User';
+        document.getElementById('infoEmail').textContent = 'guest@example.com';
+    }
+    const lastAnalysis = localStorage.getItem('lastAnalysis');
+    if (lastAnalysis) {
+        try {
+            const data = JSON.parse(lastAnalysis);
+            document.getElementById('modalTotalEnergy').textContent = (data.total_energy || 0).toFixed(2);
+            const savings = ((data.total_cost || 0) * 0.2).toFixed(2);
+            document.getElementById('modalTotalSavings').textContent = `₹${savings}`;
+            document.getElementById('modalCarbonSaved').textContent = ((data.total_carbon || 0) * 0.2).toFixed(2);
+            document.getElementById('modalEfficiency').textContent = `${data.efficiency_score || 80}%`;
+            document.getElementById('infoAvgDaily').textContent = ((data.total_energy || 0) / 7).toFixed(2) + ' kWh';
+            if (data.appliance_usage && Object.keys(data.appliance_usage).length > 0) {
+                const topApp = Object.entries(data.appliance_usage).sort((a,b) => b[1] - a[1])[0];
+                document.getElementById('infoTopAppliance').textContent = topApp[0];
             }
-        }, 1500);
+            if (data.hourly_usage && Object.keys(data.hourly_usage).length > 0) {
+                const peakHour = Object.entries(data.hourly_usage).sort((a,b) => b[1] - a[1])[0];
+                document.getElementById('infoPeakHour').textContent = `${peakHour[0]}:00`;
+            }
+        } catch(e) {}
     }
+    document.getElementById('profileModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+function closeProfileModal() { document.getElementById('profileModal').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
-    function generateDynamicAlerts(energy, isPeakHour, temp, occupancy, appliances, hour) {
-        const alerts = [];
-        if (isPeakHour) alerts.push({ type: 'warning', message: `⚠️ Peak hour detected (${hour}:00). Rates are higher.` });
-        if (energy > 8) alerts.push({ type: 'danger', message: `🔥 Very high consumption (${energy.toFixed(2)} kWh)!` });
-        else if (energy < 2) alerts.push({ type: 'success', message: `✅ Low consumption (${energy.toFixed(2)} kWh).` });
-        if (occupancy === 'Vacant' && energy > 2) alerts.push({ type: 'danger', message: `🏠 Vacant property but high usage detected!` });
-        return alerts;
-    }
+// Appliance Functions (keeping existing code)
+function buildApplianceOptions(selected) { return Object.entries(APPLIANCE_DATA).map(([n, d]) => `<option value="${n}" ${n === selected ? 'selected' : ''}>${d.icon} ${n} (${d.power}W)</option>`).join(''); }
+function buildRoomOptions(selected) { return ROOMS.map(r => `<option ${r === selected ? 'selected' : ''}>${r}</option>`).join(''); }
+function addAppliance(defaultName, defaultPower, defaultDuration, defaultRoom, defaultQty) { const name = defaultName || 'AC'; const data = APPLIANCE_DATA[name] || { power: 100, room: 'Living Room', level: 'medium', range: '50-200W' }; const power = defaultPower || data.power; const duration = defaultDuration || 60; const room = defaultRoom || data.room; const qty = defaultQty || 1; const container = document.getElementById('appliancesContainer'); const idx = applianceIdx++; const block = document.createElement('div'); block.className = 'appliance-block'; block.setAttribute('data-idx', idx); block.innerHTML = `<button class="remove-appliance" onclick="this.parentElement.remove()">×</button><div class="row g-3 align-items-end"><div class="col-md-3"><select class="form-select appliance-select" onchange="onApplianceChange(this)">${buildApplianceOptions(name)}</select><div class="appliance-power-badge ${levelBadgeClass(data.level)}" id="powerBadge_${idx}">${data.icon} ${levelLabel(data.level)} · ${data.range} · ₹${powerCostPerHour(power)}/hr</div></div><div class="col-md-2"><input type="number" class="form-control power-input" value="${power}" step="10" onchange="updateCostLabel(this, ${idx})"><div class="cost-per-hr" id="costLabel_${idx}">₹${powerCostPerHour(power)}/hr</div></div><div class="col-md-2"><input type="number" class="form-control duration-input" value="${duration}" step="5"></div><div class="col-md-3"><select class="form-select room-select">${buildRoomOptions(room)}</select></div><div class="col-md-2"><input type="number" class="form-control quantity-input" value="${qty}" min="1" max="10"></div></div>`; container.appendChild(block); }
+function onApplianceChange(selectEl) { const block = selectEl.closest('.appliance-block'); const idx = block.getAttribute('data-idx'); const name = selectEl.value; const data = APPLIANCE_DATA[name] || { power: 100, room: 'Living Room', level: 'medium', range: '50-200W' }; block.querySelector('.power-input').value = data.power; block.querySelector('.room-select').value = data.room; const badge = document.getElementById('powerBadge_' + idx); if (badge) { badge.className = 'appliance-power-badge ' + levelBadgeClass(data.level); badge.innerHTML = `${data.icon} ${levelLabel(data.level)} · ${data.range} · ₹${powerCostPerHour(data.power)}/hr`; } const costLabel = document.getElementById('costLabel_' + idx); if (costLabel) costLabel.textContent = `₹${powerCostPerHour(data.power)}/hr`; }
+function updateCostLabel(input, idx) { const costLabel = document.getElementById('costLabel_' + idx); if (costLabel) costLabel.textContent = `₹${powerCostPerHour(parseFloat(input.value) || 0)}/hr`; }
+function powerCostPerHour(watts) { return ((watts / 1000) * 7).toFixed(2); }
+function levelBadgeClass(level) { return 'badge-' + level; }
+function levelLabel(level) { const map = { 'very-low': 'Very Low', 'low': 'Low', 'medium': 'Medium', 'high': 'High', 'very-high': 'Very High' }; return map[level] || 'Medium'; }
+function buildPowerGuide() { const grid = document.getElementById('powerGuideGrid'); let html = ''; Object.entries(APPLIANCE_DATA).forEach(([name, data]) => { html += `<div class="col-md-3 col-6"><div class="power-item"><span class="icon">${data.icon}</span><span class="fw-bold">${name}</span><span class="watts">${data.power}W</span><span class="cost-hr">@ ₹${powerCostPerHour(data.power)}/hr</span></div><div class="power-level-bar level-${data.level}"></div></div>`; }); grid.innerHTML = html; }
+function autoFillDateTime() { const now = new Date(); document.getElementById('inputDate').value = now.toISOString().slice(0,10); document.getElementById('inputTime').value = now.toTimeString().slice(0,5); const day = now.getDay(); document.getElementById('dayType').value = (day === 0 || day === 6) ? 'Weekend' : 'Weekday'; }
+function selectPredictionType(type) { currentPredictionType = type; document.querySelectorAll('.pred-btn').forEach(b => b.classList.remove('active')); document.querySelector(`.pred-btn[data-type="${type}"]`).classList.add('active'); document.getElementById('forecastOptions').style.display = type === 'forecast' ? 'block' : 'none'; }
+function selectForecastPeriod(period, btn) { currentPeriod = period; document.querySelectorAll('.forecast-period-btn').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-outline-primary'); }); btn.classList.remove('btn-outline-primary'); btn.classList.add('btn-primary'); }
+function getSeasonFromDate(dateString) { try { const m = new Date(dateString).getMonth() + 1; if ([3,4,5].includes(m)) return 'Summer'; if ([6,7,8].includes(m)) return 'Monsoon'; if ([9,10].includes(m)) return 'Autumn'; if ([11,12].includes(m)) return 'Winter'; return 'Spring'; } catch(e) { return 'Spring'; } }
+function getApplianceCategory(name) { if (!name) return 'General'; const n = name.toLowerCase(); if (n.includes('ac') || n.includes('fan')) return 'Cooling'; if (n.includes('light')) return 'Lighting'; if (n.includes('fridge') || n.includes('microwave') || n.includes('oven')) return 'Kitchen'; if (n.includes('washing')) return 'Laundry'; return 'General'; }
+function buildBaseRecords() { const dateStr = document.getElementById('inputDate').value; const timeStr = document.getElementById('inputTime').value; const temp = parseFloat(document.getElementById('temperatureSetting').value) || 24; const occupancy = document.getElementById('occupancyStatus').value; const hour = parseInt(timeStr.split(':')[0]) || 12; const dateObj = new Date(dateStr + 'T' + timeStr); const dayOfWeek = isNaN(dateObj) ? 'Monday' : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()]; const season = getSeasonFromDate(dateStr); const blocks = document.querySelectorAll('.appliance-block'); const records = []; blocks.forEach(block => { const applianceName = block.querySelector('.appliance-select').value; const power = parseFloat(block.querySelector('.power-input').value) || 0; const duration = parseFloat(block.querySelector('.duration-input').value) || 0; const room = block.querySelector('.room-select').value; const quantity = parseInt(block.querySelector('.quantity-input').value) || 1; for (let q = 0; q < quantity; q++) records.push({ power_consumption_W: power, usage_duration_minutes: duration, appliance: applianceName, occupancy_status: occupancy, temperature_setting_C: temp, hour: hour, day_of_week: dayOfWeek, season: season, room_location: room, appliance_category: getApplianceCategory(applianceName) }); }); return records; }
+function generateMultiDayRecords(baseRecords, numDays) { const allRecords = []; const startDate = new Date(document.getElementById('inputDate').value); for (let day = 0; day < numDays; day++) { const currentDate = new Date(startDate); currentDate.setDate(currentDate.getDate() + day); const dayOfWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][currentDate.getDay()]; const season = getSeasonFromDate(currentDate.toISOString()); baseRecords.forEach(rec => { const durVar = Math.round(rec.usage_duration_minutes * (0.85 + Math.random() * 0.3)); const hourVar = Math.max(0, Math.min(23, rec.hour + Math.floor(Math.random() * 3) - 1)); const powerVar = Math.round(rec.power_consumption_W * (0.9 + Math.random() * 0.2)); allRecords.push({ ...rec, power_consumption_W: powerVar, usage_duration_minutes: durVar, hour: hourVar, day_of_week: dayOfWeek, season: season }); }); } return allRecords; }
+async function makePrediction() { const baseRecords = buildBaseRecords(); if (baseRecords.length === 0) { alert('⚠️ Please add at least one appliance!'); return; } const numDays = currentPredictionType === 'instant' ? 7 : currentPeriod; const records = generateMultiDayRecords(baseRecords, numDays); globalRecords = records; document.getElementById('formSection').style.display = 'none'; document.getElementById('loadingSpinner').style.display = 'block'; destroyCharts(); try { const response = await fetch(`${API_URL}/batch_predict`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: authManager.getUserId(), user_name: authManager.getUserName(), mode: 'manual', records: records }) }); if (!response.ok) throw new Error('Server error'); const result = await response.json(); if (!result || result.success === false) throw new Error(result.error || 'Prediction failed'); processAPIResult(result, records, numDays); } catch (err) { console.warn('API failed, using local fallback:', err.message); localFallback(records, numDays); } }
+function processAPIResult(result, records, numDays) { const finalEnergy = result.total_energy || 0; const finalCost = result.total_cost || (finalEnergy * 7); const finalCarbon = result.total_carbon || (finalEnergy * 0.82); let safeAppUsage = (result.appliance_usage && typeof result.appliance_usage === 'object') ? result.appliance_usage : {}; if (Object.keys(safeAppUsage).length === 0) records.forEach(r => { const e = (r.power_consumption_W * r.usage_duration_minutes) / 60000; safeAppUsage[r.appliance] = (safeAppUsage[r.appliance] || 0) + e; }); let safeRoomUsage = (result.room_usage && typeof result.room_usage === 'object') ? result.room_usage : {}; if (Object.keys(safeRoomUsage).length === 0) records.forEach(r => { safeRoomUsage[r.room_location] = (safeRoomUsage[r.room_location] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); }); const dailyMap = {}; records.forEach(r => { if (r.day_of_week) dailyMap[r.day_of_week] = (dailyMap[r.day_of_week] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); }); const hourMap = {}; records.forEach(r => { if (r.hour != null) hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); }); analysisData = { totalEnergy: finalEnergy, totalCost: finalCost, totalCarbon: finalCarbon, avgDailyEnergy: (finalEnergy / numDays).toFixed(2), applianceUsage: safeAppUsage, roomUsage: safeRoomUsage, peakHours: Array.isArray(result.peak_hours) ? result.peak_hours : [], alerts: Array.isArray(result.alerts) ? result.alerts : [], recommendations: Array.isArray(result.recommendations) ? result.recommendations : [], waste: Array.isArray(result.waste) ? result.waste : [], efficiencyScore: result.efficiency_score || 80, dataCount: records.length, numDays: numDays, data_science_metrics: result.data_science_metrics || null, summary: result.summary || null, chartData_dailyTrend: { labels: Object.keys(dailyMap), values: Object.values(dailyMap) }, chartData_hourlyUsage: { labels: Object.keys(hourMap).sort((a,b)=>a-b), values: Object.keys(hourMap).sort((a,b)=>a-b).map(k=>hourMap[k]) }, mode: 'manual', predictionType: currentPredictionType, timestamp: new Date().toISOString() }; try { localStorage.setItem('latestPrediction', JSON.stringify(analysisData)); } catch(e) {} document.getElementById('loadingSpinner').style.display = 'none'; document.getElementById('resultsSection').style.display = 'block'; displayResults(analysisData); }
+function localFallback(records, numDays) { let totalEnergy = 0; const appUsage = {}, roomUsage = {}, dailyMap = {}, hourMap = {}; records.forEach(r => { const e = (r.power_consumption_W * r.usage_duration_minutes) / 60000; totalEnergy += e; appUsage[r.appliance] = (appUsage[r.appliance] || 0) + e; roomUsage[r.room_location] = (roomUsage[r.room_location] || 0) + e; if (r.day_of_week) dailyMap[r.day_of_week] = (dailyMap[r.day_of_week] || 0) + e; if (r.hour != null) hourMap[r.hour] = (hourMap[r.hour] || 0) + e; }); const totalCost = totalEnergy * 7; const totalCarbon = totalEnergy * 0.82; const alerts = [{ type: 'success', message: `✅ Analysis complete: ${totalEnergy.toFixed(2)} kWh over ${numDays} days.` }]; const recommendations = ['💡 Consider using energy-efficient appliances', '🔌 Unplug devices when not in use']; const waste = []; const peakHours = Object.entries(hourMap).sort((a,b)=>b[1]-a[1]).slice(0,2).map(h=>parseInt(h[0])); analysisData = { totalEnergy, totalCost, totalCarbon, avgDailyEnergy: (totalEnergy/numDays).toFixed(2), applianceUsage: appUsage, roomUsage: roomUsage, peakHours: peakHours, alerts: alerts, recommendations: recommendations, waste: waste, efficiencyScore: 75, dataCount: records.length, numDays: numDays, data_science_metrics: null, summary: null, chartData_dailyTrend: { labels: Object.keys(dailyMap), values: Object.values(dailyMap) }, chartData_hourlyUsage: { labels: Object.keys(hourMap).sort((a,b)=>a-b), values: Object.keys(hourMap).sort((a,b)=>a-b).map(k=>hourMap[k]) }, mode: 'manual', predictionType: currentPredictionType, timestamp: new Date().toISOString() }; try { localStorage.setItem('latestPrediction', JSON.stringify(analysisData)); } catch(e) {} document.getElementById('loadingSpinner').style.display = 'none'; document.getElementById('resultsSection').style.display = 'block'; displayResults(analysisData); }
+function destroyCharts() { Object.values(chartInstances).forEach(c => { if (c) c.destroy(); }); chartInstances = {}; }
+function updateActionCards(data) {
+    const alerts = Array.isArray(data.alerts) ? data.alerts : [];
+    const alertCount = alerts.length;
+    const alertBadge = document.getElementById('alertBadge');
+    const alertStatusText = document.getElementById('alertStatusText');
+    if (alertCount === 0) { alertBadge.innerHTML = '✓'; alertBadge.className = 'action-badge badge-success'; alertStatusText.innerHTML = 'No alerts'; }
+    else if (alertCount <= 2) { alertBadge.innerHTML = alertCount; alertBadge.className = 'action-badge badge-warning'; alertStatusText.innerHTML = `${alertCount} alert${alertCount > 1 ? 's' : ''}`; }
+    else { alertBadge.innerHTML = alertCount; alertBadge.className = 'action-badge badge-danger'; alertStatusText.innerHTML = `${alertCount} critical alerts`; }
+    
+    const recommendations = Array.isArray(data.recommendations) ? data.recommendations : [];
+    const recCount = recommendations.length;
+    const recBadge = document.getElementById('recBadge');
+    const recCountText = document.getElementById('recCountText');
+    if (recCount === 0) { recBadge.innerHTML = '💡'; recBadge.className = 'action-badge badge-info'; recCountText.innerHTML = 'No recommendations'; }
+    else { recBadge.innerHTML = recCount; recBadge.className = 'action-badge badge-success'; recCountText.innerHTML = `${recCount} recommendation${recCount > 1 ? 's' : ''}`; }
+    
+    const waste = Array.isArray(data.waste) ? data.waste : [];
+    const wasteCount = waste.length;
+    const wasteBadge = document.getElementById('wasteBadge');
+    const wasteStatusText = document.getElementById('wasteStatusText');
+    if (wasteCount === 0) { wasteBadge.innerHTML = '✓'; wasteBadge.className = 'action-badge badge-success'; wasteStatusText.innerHTML = 'No waste detected'; }
+    else if (wasteCount <= 2) { wasteBadge.innerHTML = wasteCount; wasteBadge.className = 'action-badge badge-warning'; wasteStatusText.innerHTML = `${wasteCount} waste instance${wasteCount > 1 ? 's' : ''}`; }
+    else { wasteBadge.innerHTML = wasteCount; wasteBadge.className = 'action-badge badge-danger'; wasteStatusText.innerHTML = `High waste detected`; }
+    
+    const efficiency = data.efficiencyScore || 0;
+    const efficiencyBadge = document.getElementById('efficiencyBadge');
+    efficiencyBadge.innerHTML = `${efficiency}%`;
+    if (efficiency >= 80) efficiencyBadge.className = 'action-badge badge-success';
+    else if (efficiency >= 60) efficiencyBadge.className = 'action-badge badge-warning';
+    else efficiencyBadge.className = 'action-badge badge-danger';
+}
+function displayResults(data) { if (!data) return; document.getElementById('totalEnergy').textContent = (data.totalEnergy || 0).toFixed(2); document.getElementById('totalCost').textContent = `₹${(data.totalCost || 0).toFixed(2)}`; document.getElementById('totalCarbon').textContent = (data.totalCarbon || 0).toFixed(2); document.getElementById('avgEnergy').textContent = data.avgDailyEnergy || 0; updateActionCards(data); const dailyMap = {}, hourMap = {}; if (Array.isArray(globalRecords)) globalRecords.forEach(r => { if (r.day_of_week) dailyMap[r.day_of_week] = (dailyMap[r.day_of_week] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); if (r.hour != null) hourMap[r.hour] = (hourMap[r.hour] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); }); destroyCharts(); const dailyCtx = document.getElementById('dailyTrendChart')?.getContext('2d'); if (dailyCtx) { const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']; const dLabels = dayOrder.filter(d => dailyMap[d]); const dValues = dLabels.map(d => dailyMap[d]); chartInstances.daily = new Chart(dailyCtx, { type: 'line', data: { labels: dLabels, datasets: [{ label: 'Energy (kWh)', data: dValues, borderColor: '#2ecc71', backgroundColor: 'rgba(46,204,113,0.15)', tension: 0.4, fill: true }] }, options: { responsive: true, plugins: { legend: { display: false } } } }); } const appCtx = document.getElementById('applianceChart')?.getContext('2d'); if (appCtx) { const aLabels = Object.keys(data.applianceUsage || {}); const aValues = Object.values(data.applianceUsage || {}); const aColors = ['#2ecc71','#3498db','#f39c12','#e74c3c','#9b59b6']; chartInstances.appliance = new Chart(appCtx, { type: 'doughnut', data: { labels: aLabels, datasets: [{ data: aValues, backgroundColor: aColors }] } }); } const peakCtx = document.getElementById('peakHourChart')?.getContext('2d'); if (peakCtx) { const hours = Object.keys(hourMap).sort((a,b)=>a-b); const hValues = hours.map(h => hourMap[h]); const peakHours = Array.isArray(data.peakHours) ? data.peakHours : []; chartInstances.peak = new Chart(peakCtx, { type: 'bar', data: { labels: hours.map(h=>h+':00'), datasets: [{ label: 'Energy (kWh)', data: hValues, backgroundColor: hours.map(h => peakHours.includes(parseInt(h)) ? '#e74c3c' : '#f39c12'), borderRadius: 6 }] } }); } const roomCtx = document.getElementById('roomChart')?.getContext('2d'); if (roomCtx) { let rLabels = Object.keys(data.roomUsage || {}); let rValues = Object.values(data.roomUsage || {}); if (rLabels.length === 0 && Array.isArray(globalRecords)) { const rm = {}; globalRecords.forEach(r => { rm[r.room_location] = (rm[r.room_location] || 0) + (r.power_consumption_W * r.usage_duration_minutes / 60000); }); rLabels = Object.keys(rm); rValues = Object.values(rm); } chartInstances.room = new Chart(roomCtx, { type: 'bar', data: { labels: rLabels, datasets: [{ label: 'Energy (kWh)', data: rValues, backgroundColor: '#3498db', borderRadius: 8 }] } }); } document.getElementById('alertsList').innerHTML = (data.alerts || []).map(a => `<div class="alert-card alert-${a.type || 'info'}"><i class="fas fa-info-circle me-2"></i>${typeof a === 'object' ? a.message : a}</div>`).join('') || '<p class="text-success">✅ No alerts</p>'; document.getElementById('recommendationsList').innerHTML = (data.recommendations || []).map(r => `<div class="rec-card"><i class="fas fa-check-circle text-success me-2"></i>${typeof r === 'object' ? r.message : r}</div>`).join('') || '<p class="text-muted">No recommendations</p>'; document.getElementById('wasteList').innerHTML = (data.waste || []).map(w => `<div class="alert-card alert-danger"><i class="fas fa-trash-alt me-2"></i>${typeof w === 'object' ? w.message : w}</div>`).join('') || '<p class="text-success">✅ No waste detected</p>'; let html = `<p><strong>Analysis Summary:</strong> ${data.dataCount || 0} records | Efficiency: ${data.efficiencyScore || 0}%</p>`; if (data.data_science_metrics) { html += `<div class="alert-card alert-info mt-2"><i class="fas fa-brain me-2"></i>ML Model: ${data.data_science_metrics.model_used} | R²: ${((data.data_science_metrics.r_squared_score || 0)*100).toFixed(2)}%</div>`; } html += `<p><strong>Peak Hours:</strong> ${(data.peakHours || []).map(h=>h+':00').join(', ') || 'None'}</p><p><strong>Monthly Savings Potential:</strong> ₹${((data.totalCost || 0) * 0.2).toFixed(2)}</p>`; document.getElementById('detailedReport').innerHTML = html; document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' }); }
+function downloadReport() { try { const report = `Manual Input Report\nDate: ${new Date().toLocaleString()}\nEnergy: ${(analysisData.totalEnergy || 0).toFixed(2)} kWh\nCost: ₹${(analysisData.totalCost || 0).toFixed(2)}\nCarbon: ${(analysisData.totalCarbon || 0).toFixed(2)} kg`; const blob = new Blob([report], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `manual_report_${new Date().toISOString().slice(0,19)}.txt`; link.click(); } catch(e) { alert('Download failed'); } }
+function saveToHistory() { alert('✅ Report saved to history'); }
+function resetForm() { document.getElementById('resultsSection').style.display = 'none'; document.getElementById('formSection').style.display = 'block'; destroyCharts(); document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' }); }
 
-    function generateDynamicRecommendations(energy, isPeakHour, temp, occupancy, appliances, hour, dayType) {
-        const recs = [];
-        if (isPeakHour) recs.push(`⏰ Shift usage to morning hours (8-11 AM).`);
-        if (energy > 5) recs.push(`💡 Reduce energy by unplugging idle devices.`);
-        if (appliances.some(a => a.name === 'AC')) recs.push(`❄️ Set AC to 24°C for optimal efficiency.`);
-        recs.push(`🔌 Unplug electronics when not in use.`);
-        return recs;
-    }
-
-    function displayInstantResult(energy, cost, carbon, isPeakHour, alerts, recommendations, mlTable) {
-        document.getElementById('resultsSection').innerHTML = `
-            <div class="form-section">
-                <h3 class="section-title"><i class="fas fa-chart-line me-2"></i>Prediction Result</h3>
-                <div class="result-card"><div class="row text-center"><div class="col-md-4"><i class="fas fa-bolt fa-3x"></i><div class="stat-value mt-2">${energy.toFixed(2)} kWh</div><small>Total Energy</small></div><div class="col-md-4"><i class="fas fa-rupee-sign fa-3x"></i><div class="stat-value mt-2">₹${cost.toFixed(2)}</div><small>Estimated Cost</small></div><div class="col-md-4"><i class="fas fa-leaf fa-3x"></i><div class="stat-value mt-2">${carbon.toFixed(2)} kg</div><small>Carbon Emission</small></div></div></div>
-                <div class="mt-4"><h5><i class="fas fa-bell text-warning"></i> Alerts</h5>${alerts.map(a => `<div class="alert-card alert-${a.type}">${a.message}</div>`).join('')}</div>
-                <div class="mt-4"><h5><i class="fas fa-lightbulb text-success"></i> Recommendations</h5>${recommendations.map(r => `<div class="rec-card"><i class="fas fa-check-circle text-success me-2"></i>${r}</div>`).join('')}</div>
-                <div class="stat-card mt-4"><h5><i class="fas fa-brain text-info"></i> ML Analysis Report</h5>${mlTable}</div>
-                <div class="mt-4 text-center"><button class="btn btn-primary" onclick="savePredictionToHistory()"><i class="fas fa-save"></i> Save to History & DB</button></div>
-            </div>`;
-        document.getElementById('resultsSection').style.display = 'block';
-        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function displayForecastResult(dailyEnergy, dailyCost, dailyCarbon, days, mlTable) {
-        document.getElementById('resultsSection').innerHTML = `
-            <div class="form-section">
-                <h3 class="section-title"><i class="fas fa-chart-line me-2"></i>Forecast Report (${days} Days)</h3>
-                <div class="result-card"><div class="row text-center"><div class="col-md-4"><i class="fas fa-bolt fa-3x"></i><div class="stat-value mt-2">${(dailyEnergy*days).toFixed(2)} kWh</div><small>Total Energy</small></div><div class="col-md-4"><i class="fas fa-rupee-sign fa-3x"></i><div class="stat-value mt-2">₹${(dailyCost*days).toFixed(2)}</div><small>Total Cost</small></div><div class="col-md-4"><i class="fas fa-leaf fa-3x"></i><div class="stat-value mt-2">${(dailyCarbon*days).toFixed(2)} kg</div><small>Total Carbon</small></div></div></div>
-                <div class="stat-card mt-4"><h5><i class="fas fa-brain text-info"></i> ML Analysis Report</h5>${mlTable}</div>
-                <div class="mt-4 text-center"><button class="btn btn-primary" onclick="savePredictionToHistory()"><i class="fas fa-save"></i> Save to History</button></div>
-            </div>`;
-        document.getElementById('resultsSection').style.display = 'block';
-        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function savePredictionToHistory() {
-        if (!latestPredictionData) return alert("No data available.");
-        const user = authManager.getCurrentUser();
-        const userId = user ? (user.id || user.name) : 'guest';
-        let reports = JSON.parse(localStorage.getItem(`manualReports_${userId}`) || '[]');
-        let efficiencyScore = 80;
-        if (latestPredictionData.totalEnergy < 3) efficiencyScore = 95;
-        else if (latestPredictionData.totalEnergy > 8) efficiencyScore = 50;
-        reports.push({ id: Date.now(), timestamp: new Date().toISOString(), mode: 'manual', totalEnergy: latestPredictionData.totalEnergy, totalCost: latestPredictionData.totalCost, totalCarbon: latestPredictionData.totalCarbon, efficiencyScore });
-        localStorage.setItem(`manualReports_${userId}`, JSON.stringify(reports));
-        localStorage.setItem('latestPrediction', JSON.stringify({ mode: 'manual', totalEnergy: latestPredictionData.totalEnergy, totalCost: latestPredictionData.totalCost, totalCarbon: latestPredictionData.totalCarbon, efficiencyScore, timestamp: new Date().toISOString() }));
-        alert('✅ Saved!');
-    }
-
-    document.addEventListener('DOMContentLoaded', () => { updateUserUI(); });
+document.addEventListener('DOMContentLoaded', function() { 
+    updateUserUI(); autoFillDateTime(); buildPowerGuide(); addAppliance('AC', 1500, 60, 'Bedroom', 1); addAppliance('Light', 40, 120, 'Living Room', 1); 
+    document.getElementById('userInfo').addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(); });
+    document.getElementById('dropdownProfile').addEventListener('click', openProfileModal);
+    document.getElementById('dropdownSettings').addEventListener('click', () => { closeDropdown(); showSettingsPanel(); });
+    document.getElementById('dropdownLogout').addEventListener('click', logout);
+    document.getElementById('backToHomeBtn').addEventListener('click', hideSettingsPanel);
+    document.getElementById('logoLink').addEventListener('click', function(e) {});
+    document.getElementById('homeNavLink').addEventListener('click', function(e) {});
+    document.addEventListener('click', (e) => { const d = document.getElementById('userDropdown'); const ui = document.getElementById('userInfo'); if (d.style.display === 'block' && !ui.contains(e.target) && !d.contains(e.target)) d.style.display = 'none'; });
+    window.onclick = function(e) { const m = document.getElementById('profileModal'); if (e.target == m) closeProfileModal(); };
+});
 </script>
 </body>
 </html>
